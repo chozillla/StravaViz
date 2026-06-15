@@ -54,6 +54,19 @@ To refresh the underlying data (pulls from Strava via the MCP, then aggregates):
 python3 scripts/process.py   # re-runs the local consolidation step over data/pages/*.json
 ```
 
+### Raw Strava data (not in git)
+
+The full Strava bulk export (≈ 860 MB — photos, FIT streams, activity CSVs) is too large and too personal to commit. It lives outside the repo:
+
+- **OneDrive mirror**: [export_43295938](https://demant-my.sharepoint.com/my?id=%2Fpersonal%2Fcehs%5Fdemant%5Fcom%2FDocuments%2Fexport%5F43295938&viewid=ad8443f7%2Df8b4%2D47a0%2Dbb36%2Daaf25ba1cb5d)
+
+To regenerate `data/rides.json` and the photo / stop placements locally:
+
+1. Download `export_43295938` and place it at `~/Downloads/export_43295938`.
+2. `ln -s ~/Downloads/export_43295938/media data/media` (so the local server can serve photos).
+3. Run `scripts/extract_stops.py` (needs `pip install fitparse`) to build `data/stops.json`.
+4. Run `python3 scripts/process.py` to rebuild `data/rides.json`.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

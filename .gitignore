@@ -220,3 +220,19 @@ __marimo__/
 # Raw Strava API page dumps — large, easily regenerable via the Strava MCP.
 # The processed data/rides.json (consumed by index.html) is committed instead.
 data/pages/
+
+# Per-activity performance cache (from Strava MCP get_activity_performance).
+data/perf/
+
+# Symlink to the user's Strava export media folder. Photos are personal — never commit.
+data/media
+
+# Raw Strava bulk export — 800+ MB of personal photos, FIT files, and metadata.
+# Mirrored on OneDrive (link in README); never commit.
+data/export_43295938/
+
+# Derived stop-location cache (extracted from FIT files). Contains GPS coords.
+data/stops.json
+
+# Local Python venv used by scripts/extract_stops.py
+.venv-stravaviz/

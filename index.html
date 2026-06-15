@@ -84,6 +84,26 @@
   .hero .unit { font-size: 18px; color: var(--ink-dim); font-weight: 400; margin-left: 4px; letter-spacing: 0; }
   .hero .sub { color: var(--ink-dim); margin-top: 6px; font-size: 12px; }
 
+  /* global sport toggle */
+  .sport-toggle { display: flex; gap: 0; border: 1px solid var(--rule); border-radius: 999px; padding: 3px; background: var(--bg-2); }
+  .sport-toggle button { background: transparent; color: var(--ink-dim); border: 0; padding: 6px 16px; font-size: 12px; cursor: pointer; font-family: inherit; letter-spacing: 0.04em; border-radius: 999px; transition: background 0.15s, color 0.15s; }
+  .sport-toggle button:hover { color: var(--ink); }
+  .sport-toggle button.on { background: var(--accent); color: #fff; }
+  .sport-toggle button.on.runs { background: #15803d; }
+  body[data-sport="rides"] .runs-only { display: none !important; }
+  body[data-sport="runs"] .rides-only { display: none !important; }
+  body[data-sport="runs"] .accent { color: #6ee7b7 !important; }
+  body[data-sport="runs"] .hero .value, body[data-sport="runs"] .run-strip strong { /* keep readable */ }
+
+  .run-strip { margin-top: 20px; padding: 16px 20px; border: 1px solid var(--rule); background: var(--bg-2); border-radius: 6px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+  .run-strip .rs-icon { font-size: 22px; }
+  .run-strip .rs-text { color: var(--ink-dim); font-size: 13px; line-height: 1.45; flex: 1; min-width: 280px; }
+  .run-strip .rs-text strong { color: var(--ink); font-weight: 500; font-feature-settings: "tnum" 1; }
+  .run-strip .rs-arc { display: flex; gap: 4px; align-items: flex-end; height: 36px; }
+  .run-strip .rs-bar { width: 14px; background: #6ee7b7; border-radius: 2px 2px 0 0; opacity: 0.55; }
+  .run-strip .rs-bar.peak { opacity: 1; }
+  .run-strip .rs-bar .yr { display: block; color: var(--ink-faint); font-size: 9px; margin-top: 4px; transform: translateY(36px); }
+
   .section { margin-top: 72px; }
   .section .head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 24px; }
   .section .head .kicker { color: var(--ink-dim); font-size: 13px; }
@@ -130,6 +150,28 @@
   .prog-tooltip .tt-name { font-weight: 500; margin-bottom: 4px; }
   .prog-tooltip .tt-meta { color: var(--ink-dim); font-size: 11px; }
 
+  /* commute PR chart */
+  svg.chart .pr-best { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+  svg.chart .pr-median { fill: none; stroke: var(--ink-dim); stroke-width: 1.5; stroke-dasharray: 3 3; }
+  svg.chart .pr-area { fill: var(--accent); fill-opacity: 0.08; }
+  svg.chart .pr-pt-best { fill: var(--accent); }
+  svg.chart .pr-pt-median { fill: var(--ink-dim); }
+
+  /* calendar heatmap */
+  .calendar { display: flex; flex-direction: column; gap: 24px; }
+  .cal-year { display: flex; align-items: flex-start; gap: 16px; }
+  .cal-year .year-label { color: var(--ink-dim); font-size: 13px; font-weight: 500; width: 44px; padding-top: 14px; font-feature-settings: "tnum" 1; flex-shrink: 0; }
+  .cal-year .year-grid { flex: 1; overflow-x: auto; }
+  .cal-year svg { display: block; min-width: 100%; }
+  .cal-cell { stroke: var(--bg); stroke-width: 1; transition: stroke 0.1s; }
+  .cal-cell:hover { stroke: var(--ink); stroke-width: 1.5; }
+  .cal-month-label { fill: var(--ink-dim); font-size: 9px; }
+  .cal-dow-label { fill: var(--ink-faint); font-size: 9px; }
+
+  .heatmap-legend { display: flex; align-items: center; gap: 8px; color: var(--ink-dim); font-size: 11px; margin-top: 14px; }
+  .heatmap-legend .scale { display: flex; gap: 2px; }
+  .heatmap-legend .scale span { width: 14px; height: 14px; border-radius: 2px; }
+
   @media (max-width: 900px) {
     .prog-grid { grid-template-columns: 1fr; }
   }
@@ -173,6 +215,39 @@
   .globe-wrap .tooltip .tt-meta { color: var(--ink-dim); font-size: 11px; }
   .globe-wrap .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--ink-dim); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none; }
   .globe-wrap.ready .loading { display: none; }
+
+  /* ride detail drawer */
+  .ride-detail { position: absolute; top: 0; right: 0; bottom: 0; width: 360px; max-width: 100%; background: var(--bg); border-left: 1px solid var(--rule); transform: translateX(100%); transition: transform 0.25s ease; overflow-y: auto; z-index: 10; }
+  .ride-detail.on { transform: translateX(0); }
+  .ride-detail .close { position: absolute; top: 10px; right: 10px; background: var(--ctrl-bg); border: 1px solid var(--ctrl-border); color: var(--ink); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 16px; line-height: 1; padding: 0; }
+  .ride-detail .close:hover { background: var(--ctrl-bg-hover); }
+  .ride-detail .rd-header { padding: 24px 24px 16px; border-bottom: 1px solid var(--rule); }
+  .ride-detail .rd-name { font-size: 18px; font-weight: 600; padding-right: 36px; letter-spacing: -0.01em; }
+  .ride-detail .rd-date { font-size: 12px; color: var(--ink-dim); margin-top: 4px; font-feature-settings: "tnum" 1; }
+  .ride-detail .rd-chips { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .ride-detail .rd-chip { background: var(--bg-2); border: 1px solid var(--rule); border-radius: 999px; padding: 3px 10px; font-size: 11px; color: var(--ink-dim); }
+  .ride-detail .rd-chip.hot { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .ride-detail .rd-section { padding: 16px 24px; border-bottom: 1px solid var(--rule); }
+  .ride-detail .rd-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .ride-detail .rd-stat .l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-dim); }
+  .ride-detail .rd-stat .v { font-size: 18px; font-weight: 500; margin-top: 2px; font-feature-settings: "tnum" 1; }
+  .ride-detail .rd-stat .v .u { font-size: 12px; color: var(--ink-dim); font-weight: 400; margin-left: 2px; }
+  .ride-detail .rd-desc { color: var(--ink); font-size: 13px; line-height: 1.55; white-space: pre-wrap; }
+  .ride-detail .rd-meta { color: var(--ink-dim); font-size: 12px; }
+  .ride-detail .rd-photos { padding: 16px 24px 32px; }
+  .ride-detail .rd-photos h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-dim); font-weight: 500; margin: 0 0 12px; }
+  .ride-detail .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .ride-detail .photo-grid img, .ride-detail .photo-grid video { width: 100%; height: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; background: var(--bg-2); cursor: zoom-in; }
+  .ride-detail .photo-grid .full-row { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
+  .ride-detail a.strava-link { display: inline-block; margin-top: 12px; font-size: 12px; color: var(--ink-dim); text-decoration: none; border-bottom: 1px solid var(--ink-dim); padding-bottom: 1px; }
+  .ride-detail a.strava-link:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* lightbox */
+  .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none; align-items: center; justify-content: center; z-index: 100; padding: 24px; }
+  .lightbox.on { display: flex; }
+  .lightbox img, .lightbox video { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .lightbox .lb-close { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.1); color: #fff; border: 0; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 20px; line-height: 1; }
+  .lightbox .lb-close:hover { background: rgba(255,255,255,0.2); }
 
   /* filter chips */
   .filter-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
@@ -219,16 +294,22 @@
       <h2>Ride Atlas <span class="accent">·</span> <span id="span-years"></span></h2>
     </div>
     <div class="right">
+      <div class="sport-toggle" id="sport-toggle">
+        <button data-sport="all" class="on">All</button>
+        <button data-sport="rides">Rides</button>
+        <button data-sport="runs">Runs</button>
+      </div>
       <div class="meta" id="span-generated"></div>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme"></button>
     </div>
   </div>
 
   <div class="hero" id="hero"></div>
+  <div class="run-strip runs-only" id="run-strip"></div>
 
-  <div class="section">
+  <div class="section rides-only">
     <div class="head">
-      <h3>How it's gone</h3>
+      <h3>How it's gone — rides</h3>
       <span class="kicker">Volume up. Speed up. Year on year.</span>
     </div>
     <div class="traj-grid">
@@ -250,7 +331,31 @@
     </div>
   </div>
 
-  <div class="section">
+  <div class="section runs-only">
+    <div class="head">
+      <h3>How it's gone — runs</h3>
+      <span class="kicker">Run volume and median pace per year.</span>
+    </div>
+    <div class="traj-grid">
+      <div class="panel">
+        <div class="head-mini">
+          <h3>Year by year</h3>
+          <span class="axis-note">bars: total km · line: median pace (min/km, lower = faster)</span>
+        </div>
+        <svg class="chart" id="chart-yearly-runs" viewBox="0 0 720 320" preserveAspectRatio="none"></svg>
+        <div class="legend-row">
+          <span><span class="sw bar" style="background:#15803d"></span>Total km run</span>
+          <span><span class="sw" style="background:#6ee7b7"></span>Median pace</span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="head-mini"><h3>The numbers</h3></div>
+        <table class="ytable" id="table-yearly-runs"></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section rides-only">
     <div class="head">
       <h3>Ride progression</h3>
       <span class="kicker">Every ride plotted by date and average speed — bigger dots are longer rides.</span>
@@ -292,10 +397,115 @@
     </div>
   </div>
 
+  <div class="section runs-only">
+    <div class="head">
+      <h3>Run progression</h3>
+      <span class="kicker">Every run as a dot — bigger = longer, lower on y = faster pace.</span>
+    </div>
+    <div class="prog-grid">
+      <div class="panel" style="position: relative;">
+        <div class="head-mini">
+          <h3>Date × Pace</h3>
+          <span class="axis-note">dot size = distance · mint line: rolling-30 pace</span>
+        </div>
+        <svg class="chart" id="chart-progression-runs" viewBox="0 0 760 360" preserveAspectRatio="none"></svg>
+        <div class="prog-tooltip" id="prog-tooltip-runs"><div class="tt-name"></div><div class="tt-meta"></div></div>
+      </div>
+      <div class="prog-panel">
+        <div class="insights" id="insights-runs"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section rides-only" id="section-power">
+    <div class="head">
+      <h3>Power</h3>
+      <span class="kicker" id="power-kicker">Average watts per ride and the mean-max power envelope.</span>
+    </div>
+    <div class="prog-grid">
+      <div class="panel" style="position: relative;">
+        <div class="head-mini">
+          <h3>Avg watts per ride</h3>
+          <span class="axis-note">grey dot = a ride · orange line: rolling-30 mean</span>
+        </div>
+        <svg class="chart" id="chart-power-trend" viewBox="0 0 760 280" preserveAspectRatio="none"></svg>
+        <div class="prog-tooltip" id="power-tooltip"><div class="tt-name"></div><div class="tt-meta"></div></div>
+      </div>
+      <div class="prog-panel">
+        <div class="insights" id="power-insights"></div>
+      </div>
+    </div>
+    <div class="panel" style="position: relative; margin-top: 28px;">
+      <div class="head-mini">
+        <h3>Mean-max power curve</h3>
+        <span class="axis-note">peak watts you can hold for each duration · sample of <span id="pc-sample">10</span> rides</span>
+      </div>
+      <svg class="chart" id="chart-power-curve" viewBox="0 0 760 300" preserveAspectRatio="none"></svg>
+      <div class="legend-row">
+        <span><span class="sw" style="background:var(--accent)"></span>Best in sample</span>
+        <span><span class="sw" style="background:var(--ink-dim);border-top:1px dashed var(--ink-dim)"></span>FTP (204 W est.)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section rides-only">
+    <div class="head">
+      <h3>Commute PR</h3>
+      <span class="kicker">Your fastest KBN ↔ CPH each month (≈15 km canonical commute).</span>
+    </div>
+    <div class="panel" style="position: relative;">
+      <div class="head-mini">
+        <h3>Monthly best · monthly median</h3>
+        <span class="axis-note">avg km/h on the daily commute</span>
+      </div>
+      <svg class="chart" id="chart-commute-pr" viewBox="0 0 760 300" preserveAspectRatio="none"></svg>
+      <div class="legend-row">
+        <span><span class="sw" style="background:var(--accent)"></span>Monthly best</span>
+        <span><span class="sw" style="background:var(--ink-dim);border-top:1px dashed var(--ink-dim)"></span>Monthly median</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section rides-only" id="section-weather">
+    <div class="head">
+      <h3>Weather × pace</h3>
+      <span class="kicker" id="weather-kicker">How temperature shapes how fast I ride.</span>
+    </div>
+    <div class="prog-grid">
+      <div class="panel" style="position: relative;">
+        <div class="head-mini">
+          <h3>Temperature × avg km/h</h3>
+          <span class="axis-note">orange band: median ±10th/90th percentile per 5 °C bucket</span>
+        </div>
+        <svg class="chart" id="chart-weather" viewBox="0 0 760 300" preserveAspectRatio="none"></svg>
+        <div class="prog-tooltip" id="weather-tooltip"><div class="tt-name"></div><div class="tt-meta"></div></div>
+      </div>
+      <div class="prog-panel">
+        <div class="insights" id="weather-insights"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="section">
     <div class="head">
-      <h3>Where I've ridden</h3>
-      <span class="kicker">Every outdoor GPS trace, filterable by category.</span>
+      <h3>Calendar</h3>
+      <span class="kicker">Year-at-a-glance — each cell shaded by total km that day.</span>
+    </div>
+    <div class="panel">
+      <div class="calendar" id="calendar"></div>
+      <div class="heatmap-legend">
+        <span>Less</span>
+        <div class="scale" id="cal-scale"></div>
+        <span>More</span>
+        <span style="margin-left: 16px;" id="cal-summary"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="head">
+      <h3>Where I've been</h3>
+      <span class="kicker" id="map-kicker">Every outdoor cycling + running trace. Use the sport pill (top right) to filter.</span>
     </div>
     <div class="filter-row" id="filter-row"></div>
     <div class="globe-grid">
@@ -307,6 +517,8 @@
           <button id="btn-cph">Copenhagen</button>
           <button id="btn-sea">Seattle</button>
           <button id="btn-mlc">Mallorca</button>
+          <button id="btn-runs">🏃 Runs</button>
+          <button id="btn-photos" class="live">📷 Photos</button>
         </div>
         <div class="zoom-ctl">
           <button id="zoom-in" title="Zoom in">+</button>
@@ -321,7 +533,12 @@
           <div style="margin-top:6px; color: var(--ink-faint); font-size: 10px;">scroll · drag · hover a trace</div>
         </div>
         <div class="tooltip" id="tooltip"><div class="tt-name"></div><div class="tt-meta"></div></div>
+        <div class="ride-detail" id="ride-detail">
+          <button class="close" id="rd-close" aria-label="Close">×</button>
+          <div class="rd-content"></div>
+        </div>
       </div>
+      <div class="lightbox" id="lightbox"><button class="lb-close" aria-label="Close">×</button><div class="lb-body"></div></div>
       <div class="regions" id="regions"></div>
     </div>
   </div>
@@ -333,6 +550,24 @@
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
 (async function() {
+  // ---- SPORT TOGGLE (global filter: all/rides/runs) ----
+  let currentSport = 'all';
+  // Hooks set by later builders. Stored as plain vars so `typeof` is safe.
+  var renderCalendarForSport = null;
+  var applyMapSport = null;
+  function setSport(s) {
+    currentSport = s;
+    document.body.setAttribute('data-sport', s);
+    document.querySelectorAll('#sport-toggle button').forEach(b => {
+      const on = b.dataset.sport === s;
+      b.classList.toggle('on', on);
+      b.classList.toggle('runs', on && s === 'runs');
+    });
+    try { localStorage.setItem('stravaviz-sport', s); } catch (e) {}
+    try { if (renderCalendarForSport) renderCalendarForSport(); } catch (e) { console.warn('cal recolor failed', e); }
+    try { if (applyMapSport) applyMapSport(); } catch (e) { console.warn('map sport apply failed', e); }
+  }
+
   // ---- THEME ----
   const root = document.documentElement;
   const tBtn = document.getElementById('theme-toggle');
@@ -351,6 +586,16 @@
   });
 
   const data = await (await fetch('data/rides.json')).json();
+
+  // Wire up sport toggle now that DOM is ready
+  document.querySelectorAll('#sport-toggle button').forEach(b => {
+    b.addEventListener('click', () => setSport(b.dataset.sport));
+  });
+  try {
+    const savedSport = localStorage.getItem('stravaviz-sport');
+    if (savedSport && ['all', 'rides', 'runs'].includes(savedSport)) setSport(savedSport);
+    else document.body.setAttribute('data-sport', 'all');
+  } catch (e) { document.body.setAttribute('data-sport', 'all'); }
 
   const fmt = (n, d = 0) => n == null ? '—' : Number(n).toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
   const fmtKm = n => fmt(n, 0) + ' km';
@@ -374,6 +619,32 @@
       <div class="value">${c.value}<span class="unit">${c.unit}</span></div>
       <div class="sub">${c.sub}</div>
     </div>`).join('');
+
+  // ---- RUN STRIP (also a runner) ----
+  (function buildRunStrip() {
+    const rt = data.runs_totals;
+    const ry = data.runs_yearly || [];
+    if (!rt || !rt.count) {
+      document.getElementById('run-strip').style.display = 'none';
+      return;
+    }
+    const peakYear = ry.reduce((a, b) => b.runs > a.runs ? b : a, ry[0] || { runs: 0 });
+    const lastActive = [...ry].reverse().find(y => y.runs >= 10);
+    const maxRuns = Math.max(...ry.map(y => y.runs), 1);
+    const arc = ry.map(y => `
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="rs-bar${y.year === peakYear.year ? ' peak' : ''}" style="height:${Math.max(2, (y.runs / maxRuns) * 36)}px;" title="${y.year}: ${y.runs} runs · ${y.distance_km} km"></div>
+        <div style="color: var(--ink-faint); font-size: 9px; margin-top: 4px;">${String(y.year).slice(2)}</div>
+      </div>`).join('');
+    document.getElementById('run-strip').innerHTML = `
+      <div class="rs-icon">🏃</div>
+      <div class="rs-text">
+        Also <strong>${rt.count.toLocaleString()}</strong> runs · <strong>${rt.distance_km.toLocaleString()}</strong> km · <strong>${rt.moving_h.toLocaleString()}</strong> h.
+        Peaked in ${peakYear.year} with <strong>${peakYear.runs}</strong> runs at ${peakYear.median_pace || '—'}/km, then transitioned to cycling.
+      </div>
+      <div class="rs-arc">${arc}</div>
+    `;
+  })();
 
   // ---- YEARLY CHART ----
   const yrs = data.yearly;
@@ -414,6 +685,161 @@
   [15, 20, 25, 30].forEach(t => {
     g.append('text').attr('x', innerW + 8).attr('y', ySpd(t) + 3).text(t);
   });
+
+  // ---- YEARLY RUNS CHART ----
+  (function buildYearlyRuns() {
+    const ry = data.runs_yearly || [];
+    if (!ry.length) return;
+    const svg = d3.select('#chart-yearly-runs');
+    const W = 720, H = 320;
+    const margin = { t: 24, r: 50, b: 30, l: 44 };
+    const innerW = W - margin.l - margin.r, innerH = H - margin.t - margin.b;
+    const x = d3.scaleBand().domain(ry.map(d => d.year)).range([0, innerW]).padding(0.25);
+    const yKm = d3.scaleLinear().domain([0, d3.max(ry, d => d.distance_km)]).nice().range([innerH, 0]);
+    // Pace axis — clamp so it's readable. Lower (faster) is at top
+    const paceMin = d3.min(ry, d => d.median_pace) || 4;
+    const paceMax = d3.max(ry, d => d.median_pace) || 7;
+    const yPace = d3.scaleLinear().domain([paceMax + 0.3, paceMin - 0.3]).range([innerH, 0]);
+    const g = svg.append('g').attr('transform', `translate(${margin.l},${margin.t})`);
+    yKm.ticks(4).forEach(t => {
+      g.append('line').attr('class', 'grid').attr('x1', 0).attr('x2', innerW).attr('y1', yKm(t)).attr('y2', yKm(t));
+      g.append('text').attr('x', -8).attr('y', yKm(t) + 3).attr('text-anchor', 'end').text(t.toLocaleString());
+    });
+    g.append('text').attr('x', -36).attr('y', -10).text('km').attr('text-anchor', 'start');
+    g.append('text').attr('x', innerW + 8).attr('y', -10).text('min/km').attr('text-anchor', 'start');
+    const lastYear = ry[ry.length - 1].year;
+    g.selectAll('rect.bar').data(ry).enter().append('rect')
+      .attr('class', d => 'bar' + (d.year === lastYear ? ' hot' : ''))
+      .attr('x', d => x(d.year)).attr('width', x.bandwidth())
+      .attr('y', d => yKm(d.distance_km)).attr('height', d => innerH - yKm(d.distance_km))
+      .attr('fill', d => d.year === ry.reduce((a, b) => b.runs > a.runs ? b : a).year ? '#15803d' : '#22543d')
+      .attr('rx', 2);
+    g.selectAll('text.year-lbl-run').data(ry).enter().append('text')
+      .attr('class', 'year-lbl-run').attr('x', d => x(d.year) + x.bandwidth() / 2).attr('y', innerH + 18)
+      .attr('text-anchor', 'middle').attr('fill', 'var(--ink-dim)').attr('font-size', 10).text(d => d.year);
+    // pace line (only on years where we have it)
+    const paceData = ry.filter(d => d.median_pace);
+    const paceLine = d3.line().x(d => x(d.year) + x.bandwidth() / 2).y(d => yPace(d.median_pace)).curve(d3.curveMonotoneX);
+    g.append('path').datum(paceData).attr('class', 'speed-line').attr('d', paceLine);
+    g.selectAll('circle.pace-pt').data(paceData).enter().append('circle')
+      .attr('class', 'speed-pt').attr('cx', d => x(d.year) + x.bandwidth() / 2)
+      .attr('cy', d => yPace(d.median_pace)).attr('r', 3);
+    // right-axis pace ticks
+    const paceTicks = [paceMin, (paceMin + paceMax) / 2, paceMax].map(t => Math.round(t * 10) / 10);
+    paceTicks.forEach(t => {
+      g.append('text').attr('x', innerW + 8).attr('y', yPace(t) + 3).attr('fill', 'var(--ink-dim)').attr('font-size', 10).text(t.toFixed(1));
+    });
+
+    // table on the right
+    const tbl = document.getElementById('table-yearly-runs');
+    const fmt2 = (n, d = 0) => n == null ? '—' : Number(n).toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
+    const head = `<thead><tr><th>Year</th><th>Runs</th><th>km</th><th>Pace</th><th>Longest</th></tr></thead>`;
+    const rows = ry.map(y => `<tr class="${y.year === lastYear ? 'now' : ''}">
+      <td>${y.year}</td>
+      <td>${y.runs}</td>
+      <td>${fmt2(y.distance_km, 0)}</td>
+      <td>${y.median_pace ? y.median_pace.toFixed(2) + '/km' : '—'}</td>
+      <td>${fmt2(y.longest_km, 0)}</td>
+    </tr>`).join('');
+    tbl.innerHTML = head + '<tbody>' + rows + '</tbody>';
+  })();
+
+  // ---- RUNS PROGRESSION ----
+  (function buildRunProgression() {
+    const rc = data.runs_chart || [];
+    if (rc.length < 5) return;
+    rc.sort((a, b) => a.date.localeCompare(b.date));
+    const svg = d3.select('#chart-progression-runs');
+    const W = 760, H = 360;
+    const m = { t: 24, r: 24, b: 36, l: 48 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const g = svg.append('g').attr('transform', `translate(${m.l},${m.t})`);
+    const dates = rc.map(r => new Date(r.date));
+    const x = d3.scaleTime().domain([dates[0], dates[dates.length - 1]]).range([0, iw]);
+    // y is INVERTED for pace — slower (higher pace number) at bottom, faster at top
+    const paces = rc.filter(r => r.pace_min_km && r.pace_min_km > 2 && r.pace_min_km < 10).map(r => r.pace_min_km);
+    const yMin = Math.max(3, d3.min(paces) - 0.3);
+    const yMax = Math.min(8, d3.max(paces) + 0.3);
+    const y = d3.scaleLinear().domain([yMax, yMin]).range([ih, 0]);
+    const rScale = d3.scaleSqrt().domain([0, d3.max(rc, r => r.km)]).range([2, 12]);
+    // y grid
+    [yMin, (yMin + yMax) / 2, yMax].forEach(t => {
+      const tt = Math.round(t * 10) / 10;
+      g.append('line').attr('class', 'grid').attr('x1', 0).attr('x2', iw).attr('y1', y(tt)).attr('y2', y(tt));
+      g.append('text').attr('x', -8).attr('y', y(tt) + 3).attr('text-anchor', 'end').text(tt.toFixed(1));
+    });
+    g.append('text').attr('x', -40).attr('y', -10).text('min/km').attr('text-anchor', 'start');
+    // x year ticks
+    const yrs = Array.from(new Set(rc.map(r => +r.date.slice(0, 4))));
+    yrs.forEach(yr => {
+      const dt = new Date(`${yr}-01-01`);
+      if (dt < dates[0] || dt > dates[dates.length - 1]) return;
+      g.append('line').attr('class', 'grid').attr('x1', x(dt)).attr('x2', x(dt)).attr('y1', 0).attr('y2', ih).attr('stroke-opacity', 0.4);
+      g.append('text').attr('x', x(dt)).attr('y', ih + 16).attr('text-anchor', 'middle').text(yr);
+    });
+    // rolling-30 pace
+    const roll = [];
+    let win = [];
+    for (const r of rc) {
+      if (!r.pace_min_km || r.pace_min_km < 2 || r.pace_min_km > 10) continue;
+      win.push(r.pace_min_km);
+      if (win.length > 30) win.shift();
+      roll.push({ date: r.date, pace: win.reduce((a, b) => a + b, 0) / win.length });
+    }
+    const line = d3.line().x(d => x(new Date(d.date))).y(d => y(d.pace)).curve(d3.curveMonotoneX);
+    g.append('path').datum(roll).attr('fill', 'none').attr('stroke', '#6ee7b7').attr('stroke-width', 2.5).attr('d', line);
+    // dots
+    const LONG_KM = 15;
+    const dots = g.selectAll('circle.run-dot').data(rc.filter(r => r.pace_min_km && r.pace_min_km > 2 && r.pace_min_km < 10)).enter().append('circle')
+      .attr('cx', d => x(new Date(d.date)))
+      .attr('cy', d => y(d.pace_min_km))
+      .attr('r', d => rScale(d.km))
+      .attr('fill', d => d.km >= LONG_KM ? '#6ee7b7' : 'var(--ink-dim)')
+      .attr('fill-opacity', d => d.km >= LONG_KM ? 0.65 : 0.32)
+      .attr('class', 'run-dot');
+    // endpoint annotations
+    if (roll.length) {
+      g.append('text').attr('class', 'annotation').attr('x', x(new Date(roll[0].date)) + 10).attr('y', y(roll[0].pace) + 16).text(`${roll[0].pace.toFixed(2)}/km`);
+      const last = roll[roll.length - 1];
+      g.append('text').attr('class', 'annotation').attr('x', x(new Date(last.date)) - 10).attr('y', y(last.pace) - 10).attr('text-anchor', 'end').attr('fill', '#6ee7b7').text(`${last.pace.toFixed(2)}/km`);
+    }
+    // tooltip
+    const tt = document.getElementById('prog-tooltip-runs');
+    const ttName = tt.querySelector('.tt-name'), ttMeta = tt.querySelector('.tt-meta');
+    const panel = tt.parentElement;
+    dots
+      .on('mouseenter', (event, d) => {
+        ttName.textContent = d.name || 'Run';
+        ttMeta.textContent = `${d.date} · ${d.km.toFixed(1)} km · ${d.pace_min_km}/km`;
+        tt.classList.add('on');
+      })
+      .on('mousemove', (event) => {
+        const r = panel.getBoundingClientRect();
+        tt.style.left = (event.clientX - r.left) + 'px';
+        tt.style.top = (event.clientY - r.top) + 'px';
+      })
+      .on('mouseleave', () => tt.classList.remove('on'));
+
+    // insights
+    const rt = data.runs_totals || {};
+    const firstYear = rc[0] ? +rc[0].date.slice(0, 4) : null;
+    const lastYear = rc[rc.length - 1] ? +rc[rc.length - 1].date.slice(0, 4) : null;
+    const longest = rc.reduce((a, b) => b.km > a.km ? b : a, rc[0]);
+    const fastest = rc.filter(r => r.pace_min_km > 2 && r.pace_min_km < 10 && r.km >= 5).reduce((a, b) => b.pace_min_km < a.pace_min_km ? b : a, { pace_min_km: 999 });
+    const peakYearRuns = (data.runs_yearly || []).reduce((a, b) => b.runs > a.runs ? b : a, { runs: 0 });
+    const insights = [
+      { top: 'Total runs', val: `${(rt.count || 0).toLocaleString()}`, sub: `${firstYear}-${lastYear} · ${rt.distance_km?.toLocaleString() || 0} km` },
+      { top: 'Peak year', val: `${peakYearRuns.runs}`, sub: `Runs in ${peakYearRuns.year} · pace ${peakYearRuns.median_pace || '—'}/km` },
+      { top: 'Longest run', val: `${longest.km.toFixed(1)} km`, sub: `${longest.name || 'Run'} · ${longest.date}` },
+      { top: 'Fastest 5k+', val: fastest.pace_min_km && fastest.pace_min_km < 100 ? `${fastest.pace_min_km}/km` : '—', sub: fastest.name ? `${fastest.name} · ${fastest.date}` : '' },
+    ];
+    document.getElementById('insights-runs').innerHTML = insights.map(i => `
+      <div class="insight">
+        <div class="ltop">${i.top}</div>
+        <div class="lval">${i.val}</div>
+        <div class="lsub">${i.sub}</div>
+      </div>`).join('');
+  })();
 
   // ---- PROGRESSION CHART ----
   (function buildProgression() {
@@ -484,6 +910,439 @@
         tt.style.top = (event.clientY - r.top) + 'px';
       })
       .on('mouseleave', () => tt.classList.remove('on'));
+  })();
+
+  // ---- POWER TREND (avg watts per ride over time) ----
+  (function buildPowerTrend() {
+    const ps = data.power_series || [];
+    if (ps.length < 5) return;
+    // sort ascending by date
+    ps.sort((a, b) => a.date.localeCompare(b.date));
+    const svg = d3.select('#chart-power-trend');
+    const W = 760, H = 280;
+    const m = { t: 24, r: 24, b: 32, l: 44 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const g = svg.append('g').attr('transform', `translate(${m.l},${m.t})`);
+    const dates = ps.map(p => new Date(p.date));
+    const x = d3.scaleTime().domain([dates[0], dates[dates.length - 1]]).range([0, iw]);
+    const y = d3.scaleLinear().domain([0, d3.max(ps, p => p.avg_watts) * 1.1]).nice().range([ih, 0]);
+    const rScale = d3.scaleSqrt().domain([0, d3.max(ps, p => p.km)]).range([2, 10]);
+    // rolling 30 of avg watts
+    const roll = [];
+    let win = [];
+    for (const p of ps) {
+      win.push(p.avg_watts);
+      if (win.length > 30) win.shift();
+      roll.push({ date: p.date, watts: win.reduce((a, b) => a + b, 0) / win.length });
+    }
+    // grid
+    y.ticks(5).forEach(t => {
+      g.append('line').attr('class', 'grid').attr('x1', 0).attr('x2', iw).attr('y1', y(t)).attr('y2', y(t));
+      g.append('text').attr('x', -8).attr('y', y(t) + 3).attr('text-anchor', 'end').text(t);
+    });
+    g.append('text').attr('x', -36).attr('y', -10).text('W').attr('text-anchor', 'start');
+    const yrs = Array.from(new Set(ps.map(p => p.date.slice(0, 4))));
+    yrs.forEach(yr => {
+      const dt = new Date(`${yr}-01-01`);
+      if (dt < dates[0] || dt > dates[dates.length - 1]) return;
+      g.append('line').attr('class', 'grid').attr('x1', x(dt)).attr('x2', x(dt)).attr('y1', 0).attr('y2', ih).attr('stroke-opacity', 0.4);
+      g.append('text').attr('x', x(dt)).attr('y', ih + 16).attr('text-anchor', 'middle').text(yr);
+    });
+    // dots
+    const dots = g.selectAll('circle.scatter-dot').data(ps).enter().append('circle')
+      .attr('class', 'scatter-dot')
+      .attr('cx', d => x(new Date(d.date)))
+      .attr('cy', d => y(d.avg_watts))
+      .attr('r', d => rScale(d.km));
+    // rolling line
+    const line = d3.line().x(d => x(new Date(d.date))).y(d => y(d.watts)).curve(d3.curveMonotoneX);
+    g.append('path').datum(roll).attr('class', 'roll-line').attr('d', line);
+    // endpoint annotations
+    g.append('text').attr('class', 'annotation').attr('x', x(new Date(roll[0].date)) + 10).attr('y', y(roll[0].watts) + 16).text(`${roll[0].watts.toFixed(0)} W`);
+    g.append('text').attr('class', 'annotation hot').attr('x', x(new Date(roll[roll.length - 1].date)) - 10).attr('y', y(roll[roll.length - 1].watts) - 12).attr('text-anchor', 'end').text(`${roll[roll.length - 1].watts.toFixed(0)} W`);
+    // tooltip
+    const tt = document.getElementById('power-tooltip');
+    const ttName = tt.querySelector('.tt-name'), ttMeta = tt.querySelector('.tt-meta');
+    const panel = tt.parentElement;
+    dots.on('mouseenter', (event, d) => {
+      ttName.textContent = d.name || 'Ride';
+      ttMeta.textContent = `${d.date} · ${d.km.toFixed(1)} km · ${d.avg_watts.toFixed(0)} W`;
+      tt.classList.add('on');
+    }).on('mousemove', (event) => {
+      const r = panel.getBoundingClientRect();
+      tt.style.left = (event.clientX - r.left) + 'px';
+      tt.style.top = (event.clientY - r.top) + 'px';
+    }).on('mouseleave', () => tt.classList.remove('on'));
+  })();
+
+  // ---- POWER CURVE ----
+  (function buildPowerCurve() {
+    const pc = data.power_curve || [];
+    const ps = data.power_series || [];
+    const section = document.getElementById('section-power');
+    if (!pc.length) {
+      section.style.display = 'none';
+      return;
+    }
+    const sample = data.power_sample_size || ps.length;
+    document.getElementById('pc-sample').textContent = sample;
+    document.getElementById('power-kicker').textContent =
+      `Avg watts per ride (${ps.length} rides with power meter) and the mean-max power envelope.`;
+
+    const FTP = 204; // from athlete zones
+    const svg = d3.select('#chart-power-curve');
+    const W = 760, H = 300;
+    const m = { t: 24, r: 40, b: 36, l: 50 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const g = svg.append('g').attr('transform', `translate(${m.l},${m.t})`);
+
+    const x = d3.scaleLog().domain([5, 3600]).range([0, iw]);
+    const y = d3.scaleLinear().domain([0, d3.max(pc, d => d.watts) * 1.1]).nice().range([ih, 0]);
+
+    // grid
+    y.ticks(5).forEach(t => {
+      g.append('line').attr('class', 'grid').attr('x1', 0).attr('x2', iw).attr('y1', y(t)).attr('y2', y(t));
+      g.append('text').attr('x', -8).attr('y', y(t) + 3).attr('text-anchor', 'end').text(t);
+    });
+    g.append('text').attr('x', -36).attr('y', -10).text('W').attr('text-anchor', 'start');
+
+    // x labels at meaningful tick durations
+    const tickDurs = [
+      { s: 5, l: '5s' }, { s: 30, l: '30s' }, { s: 60, l: '1m' },
+      { s: 300, l: '5m' }, { s: 600, l: '10m' }, { s: 1200, l: '20m' }, { s: 3600, l: '1h' },
+    ];
+    tickDurs.forEach(t => {
+      g.append('line').attr('class', 'grid').attr('x1', x(t.s)).attr('x2', x(t.s)).attr('y1', 0).attr('y2', ih).attr('stroke-opacity', 0.4);
+      g.append('text').attr('x', x(t.s)).attr('y', ih + 16).attr('text-anchor', 'middle').text(t.l);
+    });
+
+    // FTP reference line
+    g.append('line').attr('class', 'pr-median').attr('x1', 0).attr('x2', iw).attr('y1', y(FTP)).attr('y2', y(FTP));
+    g.append('text').attr('class', 'annotation').attr('x', iw - 10).attr('y', y(FTP) - 6).attr('text-anchor', 'end').text(`FTP ≈ ${FTP} W`);
+
+    // area + line
+    const area = d3.area().x(d => x(d.seconds)).y0(ih).y1(d => y(d.watts)).curve(d3.curveMonotoneX);
+    g.append('path').datum(pc).attr('class', 'pr-area').attr('d', area);
+    const line = d3.line().x(d => x(d.seconds)).y(d => y(d.watts)).curve(d3.curveMonotoneX);
+    g.append('path').datum(pc).attr('class', 'pr-best').attr('d', line);
+
+    g.selectAll('circle.pp').data(pc).enter().append('circle')
+      .attr('class', 'pr-pt-best').attr('cx', d => x(d.seconds)).attr('cy', d => y(d.watts)).attr('r', 3);
+
+    // Label key points
+    [60, 300, 1200, 3600].forEach(s => {
+      const pt = pc.find(p => p.seconds === s);
+      if (!pt) return;
+      g.append('text').attr('class', 'annotation hot')
+        .attr('x', x(s)).attr('y', y(pt.watts) - 10).attr('text-anchor', 'middle')
+        .text(`${pt.watts} W`);
+    });
+  })();
+
+  // ---- POWER INSIGHTS ----
+  (function buildPowerInsights() {
+    const pc = data.power_curve || [];
+    const ps = data.power_series || [];
+    if (!pc.length) return;
+    const FTP = 204;
+    const weightKg = 69.85;
+    const at = (sec) => pc.find(p => p.seconds === sec)?.watts;
+    const pp5s = at(5), pp1m = at(60), pp5m = at(300), pp20m = at(1200);
+    const avgRecent = ps.length ? d3.mean(ps, p => p.avg_watts) : null;
+    const sample = data.power_sample_size || ps.length;
+
+    const insights = [
+      { top: 'Peak sprint (5s)', val: `${pp5s} W`, sub: `${(pp5s / weightKg).toFixed(1)} W/kg` },
+      { top: '5-min effort', val: `${pp5m} W`, sub: `${(pp5m / weightKg).toFixed(2)} W/kg — VO₂max territory` },
+      { top: '20-min best', val: `${pp20m} W`, sub: `≈ ${Math.round(pp20m * 0.95)} W FTP from 95 % rule` },
+      { top: 'Avg ride watts', val: avgRecent ? `${avgRecent.toFixed(0)} W` : '—', sub: `Mean over ${sample}-ride sample` },
+    ];
+    document.getElementById('power-insights').innerHTML = insights.map(i => `
+      <div class="insight">
+        <div class="ltop">${i.top}</div>
+        <div class="lval">${i.val}</div>
+        <div class="lsub">${i.sub}</div>
+      </div>`).join('');
+  })();
+
+  // ---- WEATHER × PACE ----
+  (function buildWeather() {
+    const wr = data.weather_rides || [];
+    const wb = data.weather_buckets || [];
+    if (wr.length < 5) {
+      document.getElementById('section-weather').style.display = 'none';
+      return;
+    }
+    document.getElementById('weather-kicker').textContent =
+      `${wr.length} rides with weather data — does the cold actually make you slower?`;
+
+    const svg = d3.select('#chart-weather');
+    const W = 760, H = 300;
+    const m = { t: 24, r: 24, b: 32, l: 44 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const g = svg.append('g').attr('transform', `translate(${m.l},${m.t})`);
+    const x = d3.scaleLinear().domain([-5, 30]).range([0, iw]);
+    const y = d3.scaleLinear().domain([12, 32]).range([ih, 0]);
+    const rScale = d3.scaleSqrt().domain([0, d3.max(wr, r => r.km)]).range([2, 9]);
+
+    // grid + ticks
+    y.ticks(5).forEach(t => {
+      g.append('line').attr('class', 'grid').attr('x1', 0).attr('x2', iw).attr('y1', y(t)).attr('y2', y(t));
+      g.append('text').attr('x', -8).attr('y', y(t) + 3).attr('text-anchor', 'end').text(t);
+    });
+    g.append('text').attr('x', -36).attr('y', -10).text('km/h').attr('text-anchor', 'start');
+    [-5, 0, 5, 10, 15, 20, 25, 30].forEach(t => {
+      g.append('line').attr('class', 'grid').attr('x1', x(t)).attr('x2', x(t)).attr('y1', 0).attr('y2', ih).attr('stroke-opacity', 0.35);
+      g.append('text').attr('x', x(t)).attr('y', ih + 16).attr('text-anchor', 'middle').text(t + '°');
+    });
+
+    // bucket band (p10–p90)
+    const area = d3.area()
+      .x(d => x((d.lo + d.hi) / 2))
+      .y0(d => y(d.p10_kmh))
+      .y1(d => y(d.p90_kmh))
+      .curve(d3.curveMonotoneX);
+    g.append('path').datum(wb).attr('class', 'pr-area').attr('d', area);
+    // median line
+    const line = d3.line()
+      .x(d => x((d.lo + d.hi) / 2))
+      .y(d => y(d.median_kmh))
+      .curve(d3.curveMonotoneX);
+    g.append('path').datum(wb).attr('class', 'pr-best').attr('d', line);
+    // dots
+    const dots = g.selectAll('circle.scatter-dot').data(wr).enter().append('circle')
+      .attr('class', 'scatter-dot')
+      .attr('cx', d => x(d.temp))
+      .attr('cy', d => y(d.kmh))
+      .attr('r', d => rScale(d.km));
+    // tooltip
+    const tt = document.getElementById('weather-tooltip');
+    const ttName = tt.querySelector('.tt-name'), ttMeta = tt.querySelector('.tt-meta');
+    const panel = tt.parentElement;
+    dots.on('mouseenter', (event, d) => {
+      ttName.textContent = d.name || 'Ride';
+      const cond = d.condition ? ` · ${d.condition}` : '';
+      ttMeta.textContent = `${d.date} · ${d.temp.toFixed(1)} °C${cond} · ${d.kmh.toFixed(1)} km/h · ${d.km.toFixed(1)} km`;
+      tt.classList.add('on');
+    }).on('mousemove', (event) => {
+      const r = panel.getBoundingClientRect();
+      tt.style.left = (event.clientX - r.left) + 'px';
+      tt.style.top = (event.clientY - r.top) + 'px';
+    }).on('mouseleave', () => tt.classList.remove('on'));
+
+    // Insight cards: cold vs warm
+    const cold = wr.filter(r => r.temp < 5);
+    const warm = wr.filter(r => r.temp >= 20);
+    const mid = wr.filter(r => r.temp >= 10 && r.temp < 20);
+    const wet = wr.filter(r => r.precip > 0);
+    const dry = wr.filter(r => !r.precip);
+    const meanOr = (arr, k) => arr.length ? d3.mean(arr, x => x[k]) : 0;
+    const insights = [
+      { top: 'Cold (< 5 °C)', val: `${meanOr(cold, 'kmh').toFixed(1)} km/h`, sub: `${cold.length} rides` },
+      { top: 'Warm (≥ 20 °C)', val: `${meanOr(warm, 'kmh').toFixed(1)} km/h`, sub: `${warm.length} rides · ${(meanOr(warm, 'kmh') - meanOr(cold, 'kmh')).toFixed(1)} km/h faster` },
+      { top: 'Sweet spot (10-20 °C)', val: `${meanOr(mid, 'kmh').toFixed(1)} km/h`, sub: `${mid.length} rides — your most common temp band` },
+      { top: 'Rain tax', val: dry.length && wet.length ? `${(meanOr(dry, 'kmh') - meanOr(wet, 'kmh')).toFixed(1)} km/h` : '—', sub: `${wet.length} wet rides vs ${dry.length} dry` },
+    ];
+    document.getElementById('weather-insights').innerHTML = insights.map(i => `
+      <div class="insight">
+        <div class="ltop">${i.top}</div>
+        <div class="lval">${i.val}</div>
+        <div class="lsub">${i.sub}</div>
+      </div>`).join('');
+  })();
+
+  // ---- COMMUTE PR CHART ----
+  (function buildCommutePR() {
+    const cpr = data.commute_pr;
+    if (!cpr || !cpr.length) return;
+    const svg = d3.select('#chart-commute-pr');
+    const W = 760, H = 300;
+    const m = { t: 24, r: 24, b: 36, l: 44 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const g = svg.append('g').attr('transform', `translate(${m.l},${m.t})`);
+
+    const parseMonth = (s) => new Date(s + '-01');
+    const dates = cpr.map(d => parseMonth(d.month));
+    const xExt = [dates[0], dates[dates.length - 1]];
+    const x = d3.scaleTime().domain(xExt).range([0, iw]);
+    const ySpd = d3.scaleLinear().domain([
+      Math.min(20, d3.min(cpr, d => d.median_kmh) - 1),
+      Math.max(32, d3.max(cpr, d => d.best_kmh) + 1),
+    ]).nice().range([ih, 0]);
+
+    // y-grid
+    ySpd.ticks(5).forEach(t => {
+      g.append('line').attr('class', 'grid').attr('x1', 0).attr('x2', iw).attr('y1', ySpd(t)).attr('y2', ySpd(t));
+      g.append('text').attr('x', -8).attr('y', ySpd(t) + 3).attr('text-anchor', 'end').text(t);
+    });
+    g.append('text').attr('x', -36).attr('y', -10).text('km/h').attr('text-anchor', 'start');
+    // x ticks (year boundaries)
+    const years = Array.from(new Set(cpr.map(d => d.month.slice(0, 4))));
+    years.forEach(y => {
+      const dt = new Date(`${y}-01-01`);
+      g.append('line').attr('class', 'grid').attr('x1', x(dt)).attr('x2', x(dt)).attr('y1', 0).attr('y2', ih).attr('stroke-opacity', 0.4);
+      g.append('text').attr('x', x(dt)).attr('y', ih + 16).attr('text-anchor', 'middle').text(y);
+    });
+
+    // area between median and best
+    const area = d3.area()
+      .x(d => x(parseMonth(d.month)))
+      .y0(d => ySpd(d.median_kmh))
+      .y1(d => ySpd(d.best_kmh))
+      .curve(d3.curveMonotoneX);
+    g.append('path').datum(cpr).attr('class', 'pr-area').attr('d', area);
+
+    // lines
+    const lineBest = d3.line().x(d => x(parseMonth(d.month))).y(d => ySpd(d.best_kmh)).curve(d3.curveMonotoneX);
+    const lineMed = d3.line().x(d => x(parseMonth(d.month))).y(d => ySpd(d.median_kmh)).curve(d3.curveMonotoneX);
+    g.append('path').datum(cpr).attr('class', 'pr-best').attr('d', lineBest);
+    g.append('path').datum(cpr).attr('class', 'pr-median').attr('d', lineMed);
+
+    g.selectAll('circle.pr-pt-best').data(cpr).enter().append('circle')
+      .attr('class', 'pr-pt-best').attr('cx', d => x(parseMonth(d.month)))
+      .attr('cy', d => ySpd(d.best_kmh)).attr('r', 3);
+    g.selectAll('circle.pr-pt-median').data(cpr).enter().append('circle')
+      .attr('class', 'pr-pt-median').attr('cx', d => x(parseMonth(d.month)))
+      .attr('cy', d => ySpd(d.median_kmh)).attr('r', 2);
+
+    // annotate latest best
+    const last = cpr[cpr.length - 1];
+    const peak = cpr.reduce((a, b) => b.best_kmh > a.best_kmh ? b : a);
+    g.append('text').attr('class', 'annotation hot')
+      .attr('x', x(parseMonth(peak.month)))
+      .attr('y', ySpd(peak.best_kmh) - 8)
+      .attr('text-anchor', 'middle')
+      .text(`Peak ${peak.best_kmh.toFixed(1)} km/h · ${peak.month}`);
+  })();
+
+  // ---- CALENDAR HEATMAP ----
+  // Built once; recolors itself when the sport toggle changes via renderCalendarForSport().
+  (function buildCalendar() {
+    const cal = data.calendar;
+    if (!cal || !cal.length) return;
+    const byDate = new Map(cal.map(c => [c.date, c]));
+    const years = Array.from(new Set(cal.map(c => c.date.slice(0, 4)))).sort();
+    const ruleColor = () => getComputedStyle(root).getPropertyValue('--rule').trim() || '#1c2029';
+    const accent = () => getComputedStyle(root).getPropertyValue('--accent').trim() || '#f97316';
+    const runColor = '#15803d';
+
+    function kmForCell(c) {
+      if (currentSport === 'rides') return c.ride_km || 0;
+      if (currentSport === 'runs') return c.run_km || 0;
+      return c.km;
+    }
+    function maxKmForSport() {
+      let m = 1;
+      for (const c of cal) m = Math.max(m, kmForCell(c));
+      return m;
+    }
+    function colorForKm(km) {
+      if (!km) return ruleColor();
+      const max = maxKmForSport();
+      const t = Math.log10(km + 1) / Math.log10(max + 1);
+      const target = currentSport === 'runs' ? runColor : accent();
+      return d3.interpolate(ruleColor(), target)(Math.max(0, Math.min(1, t)));
+    }
+    function cellColor(km) { return colorForKm(km); }
+
+    const CELL = 12, GAP = 2;
+    const calRoot = document.getElementById('calendar');
+    calRoot.innerHTML = '';
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    for (const yr of years) {
+      const yrInt = +yr;
+      const jan1 = new Date(yrInt, 0, 1);
+      const dec31 = new Date(yrInt, 11, 31);
+      // weeks in this year (Mon-start)
+      function dayOfWeek(d) { return (d.getDay() + 6) % 7; } // Mon = 0
+      function weekIndex(d) {
+        const offset = dayOfWeek(jan1);
+        const dayOfYear = Math.floor((d - jan1) / 86400000);
+        return Math.floor((dayOfYear + offset) / 7);
+      }
+      const nWeeks = weekIndex(dec31) + 1;
+      const w = nWeeks * (CELL + GAP) + 30; // +30 for dow labels
+      const h = 7 * (CELL + GAP) + 24;      // +24 for month labels
+
+      const row = document.createElement('div');
+      row.className = 'cal-year';
+      row.innerHTML = `<div class="year-label">${yr}</div><div class="year-grid"><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMinYMid meet" style="height:${h}px"></svg></div>`;
+      calRoot.appendChild(row);
+      const svg = d3.select(row.querySelector('svg'));
+
+      // day-of-week labels (left)
+      ['Mon', 'Wed', 'Fri'].forEach((d, i) => {
+        svg.append('text').attr('class', 'cal-dow-label').attr('x', 0).attr('y', 24 + (i * 2 + 1) * (CELL + GAP) + 4).text(d);
+      });
+
+      // month labels (top): one per first column where day = 1 of month
+      for (let m = 0; m < 12; m++) {
+        const firstOfMonth = new Date(yrInt, m, 1);
+        const col = weekIndex(firstOfMonth);
+        svg.append('text').attr('class', 'cal-month-label').attr('x', 26 + col * (CELL + GAP)).attr('y', 14).text(monthNames[m]);
+      }
+
+      // cells
+      for (let d = new Date(jan1); d <= dec31; d.setDate(d.getDate() + 1)) {
+        const ds = d.toISOString().slice(0, 10);
+        const rec = byDate.get(ds);
+        const km = rec ? kmForCell(rec) : 0;
+        const col = weekIndex(d);
+        const dow = dayOfWeek(d);
+        const cx = 26 + col * (CELL + GAP);
+        const cy = 24 + dow * (CELL + GAP);
+        const tooltip = rec
+          ? `${ds} — ${(currentSport === 'all' ? rec.km : km).toFixed(1)} km · ${rec.rides || 0} ride${rec.rides === 1 ? '' : 's'} · ${rec.runs || 0} run${rec.runs === 1 ? '' : 's'}`
+          : `${ds} — rest`;
+        const cell = svg.append('rect').attr('class', 'cal-cell').attr('data-date', ds)
+          .attr('x', cx).attr('y', cy).attr('width', CELL).attr('height', CELL).attr('rx', 2)
+          .attr('fill', cellColor(km));
+        cell.append('title').text(tooltip);
+      }
+    }
+
+    // legend swatches — re-rendered when sport changes
+    function renderLegend() {
+      const scale = document.getElementById('cal-scale');
+      scale.innerHTML = '';
+      [0, 0.25, 0.5, 0.75, 1].forEach(t => {
+        const sw = document.createElement('span');
+        sw.style.background = t === 0 ? ruleColor() : colorForKm(Math.pow(10, t * Math.log10(maxKmForSport() + 1)) - 1);
+        scale.appendChild(sw);
+      });
+    }
+    renderLegend();
+    renderCalendarForSport = function () {  // assigns to outer hoisted var
+      const cells = d3.selectAll('.cal-cell');
+      cells.each(function () {
+        const node = d3.select(this);
+        const ds = node.attr('data-date');
+        const rec = byDate.get(ds);
+        const km = rec ? kmForCell(rec) : 0;
+        node.attr('fill', cellColor(km));
+        const tip = this.querySelector('title');
+        if (tip) tip.textContent = rec
+          ? `${ds} — ${(currentSport === 'all' ? rec.km : km).toFixed(1)} km · ${rec.rides || 0} ride${rec.rides === 1 ? '' : 's'} · ${rec.runs || 0} run${rec.runs === 1 ? '' : 's'}`
+          : `${ds} — rest`;
+      });
+      renderLegend();
+    };
+
+    const ridingDays = cal.length;
+    const totalDays = Math.floor((new Date(cal[cal.length - 1].date) - new Date(cal[0].date)) / 86400000) + 1;
+    const longestStreak = (() => {
+      let cur = 0, best = 0, prev = null;
+      for (const c of cal) {
+        const d = new Date(c.date);
+        if (prev && (d - prev) === 86400000) cur++; else cur = 1;
+        if (cur > best) best = cur;
+        prev = d;
+      }
+      return best;
+    })();
+    document.getElementById('cal-summary').textContent =
+      `${ridingDays} riding days of ${totalDays} (${(ridingDays / totalDays * 100).toFixed(0)} %) · longest streak ${longestStreak} days`;
   })();
 
   // ---- INSIGHTS (numerical "improvement" callouts) ----
@@ -557,6 +1416,19 @@
   document.getElementById('lg-max').textContent = yMax;
   document.getElementById('globe-stats').innerHTML =
     `${fmt(data.paths.length)} traces · ${fmt(data.totals.elev_m / 1000, 1)} km elevation`;
+
+  // GeoJSON FeatureCollection of all RUNS — stored once
+  const runsGeoJSON = {
+    type: 'FeatureCollection',
+    features: (data.run_paths || [])
+      .slice()
+      .sort((a, b) => a.year - b.year)
+      .map(r => ({
+        type: 'Feature',
+        properties: { id: r.id, name: r.name, year: r.year, km: r.km, sport: 'run', date: r.date, pace: r.pace_min_km },
+        geometry: { type: 'LineString', coordinates: r.path.map(([lat, lng]) => [lng, lat]) },
+      })),
+  };
 
   // GeoJSON FeatureCollection of all rides — stored once, reused across style swaps
   const ridesGeoJSON = {
@@ -650,6 +1522,30 @@
     } else {
       map.setPaintProperty('rides-glow', 'line-color', yearColorExpr());
     }
+    // Runs layer — different palette (cool greens) so they read as a distinct mode
+    if (!map.getSource('runs')) {
+      map.addSource('runs', { type: 'geojson', data: runsGeoJSON, generateId: true });
+    }
+    if (!map.getLayer('runs')) {
+      map.addLayer({
+        id: 'runs',
+        type: 'line',
+        source: 'runs',
+        layout: { 'line-cap': 'round', 'line-join': 'round', 'visibility': 'none' },
+        paint: {
+          'line-color': '#6ee7b7',
+          'line-opacity': [
+            'interpolate', ['linear'], ['zoom'],
+            1, 0.7, 6, 0.7, 10, 0.78, 14, 0.85,
+          ],
+          'line-width': [
+            'interpolate', ['linear'], ['zoom'],
+            1, 1.5, 4, 1.6, 8, 1.8, 12, 2.4, 16, 3.6,
+          ],
+        },
+      }, beforeId);
+    }
+
     if (!map.getLayer('rides')) {
       map.addLayer({
         id: 'rides',
@@ -660,21 +1556,72 @@
           'line-color': yearColorExpr(),
           'line-opacity': [
             'interpolate', ['linear'], ['zoom'],
-            1, 0.55,
-            6, 0.65,
-            10, 0.7,
-            14, 0.78,
+            1, 0.75,
+            6, 0.8,
+            10, 0.8,
+            14, 0.82,
           ],
           'line-width': [
             'interpolate', ['linear'], ['zoom'],
-            1, 0.4,
-            4, 0.8,
-            8, 1.4,
-            12, 2.2,
+            1, 1.5,
+            4, 1.6,
+            8, 1.8,
+            12, 2.4,
             16, 3.6,
           ],
         },
       }, beforeId);
+      // photo markers — one dot per photo, distributed along its activity's path
+      if (!map.getSource('photos')) {
+        const photoFC = {
+          type: 'FeatureCollection',
+          features: (data.photo_points || []).map(pp => ({
+            type: 'Feature',
+            properties: {
+              ride_id: pp.ride_id, ride_name: pp.ride_name, date: pp.date,
+              media: pp.media, is_video: pp.is_video,
+              kind: pp.kind || 'ride',
+            },
+            geometry: { type: 'Point', coordinates: [pp.lng, pp.lat] },
+          })),
+        };
+        map.addSource('photos', { type: 'geojson', data: photoFC, cluster: true, clusterRadius: 28, clusterMaxZoom: 12 });
+      }
+      const accent = colorVar('--accent') || '#f97316';
+      map.addLayer({
+        id: 'photo-clusters',
+        type: 'circle',
+        source: 'photos',
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': accent,
+          'circle-opacity': 0.7,
+          'circle-radius': ['step', ['get', 'point_count'], 8, 5, 11, 25, 14, 100, 18],
+          'circle-stroke-color': '#fff',
+          'circle-stroke-width': 1.5,
+        },
+      });
+      map.addLayer({
+        id: 'photo-cluster-count',
+        type: 'symbol',
+        source: 'photos',
+        filter: ['has', 'point_count'],
+        layout: { 'text-field': '{point_count_abbreviated}', 'text-size': 11, 'text-font': ['Noto Sans Bold', 'Open Sans Bold', 'Arial Unicode MS Bold'] },
+        paint: { 'text-color': '#fff' },
+      });
+      map.addLayer({
+        id: 'photos',
+        type: 'circle',
+        source: 'photos',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': accent,
+          'circle-opacity': 0.9,
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 1, 2.5, 8, 4, 14, 6],
+          'circle-stroke-color': '#fff',
+          'circle-stroke-width': 1.2,
+        },
+      });
       // hover layer: highlights the trace under the cursor
       map.addLayer({
         id: 'rides-hover',
@@ -724,7 +1671,7 @@
       const p = f.properties;
       setHover(f.id);
       tip.querySelector('.tt-name').textContent = p.name || 'Ride';
-      tip.querySelector('.tt-meta').textContent = `${p.year} · ${(+p.km).toFixed(1)} km`;
+      tip.querySelector('.tt-meta').textContent = `${p.year} · ${(+p.km).toFixed(1)} km · click for detail`;
       tip.classList.add('on');
       const rect = wrap.getBoundingClientRect();
       tip.style.left = (e.originalEvent.clientX - rect.left) + 'px';
@@ -736,6 +1683,279 @@
       tip.classList.remove('on');
       map.getCanvas().style.cursor = '';
     });
+    map.on('click', 'rides', (e) => {
+      if (!e.features.length) return;
+      const p = e.features[0].properties;
+      showRideDetail(p.id);
+    });
+    // photo pin click → open the parent activity's detail (ride or run)
+    map.on('click', 'photos', (e) => {
+      if (!e.features.length) return;
+      const p = e.features[0].properties;
+      if (p.kind === 'run') {
+        const run = (data.run_paths || []).find(r => r.id === p.ride_id);
+        if (run) showRunDetail(run);
+      } else {
+        showRideDetail(p.ride_id);
+      }
+    });
+    map.on('mouseenter', 'photos', () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', 'photos', () => { map.getCanvas().style.cursor = ''; });
+    // photo cluster click → zoom in
+    map.on('click', 'photo-clusters', (e) => {
+      const cid = e.features[0].properties.cluster_id;
+      map.getSource('photos').getClusterExpansionZoom(cid, (err, zoom) => {
+        if (err) return;
+        map.easeTo({ center: e.features[0].geometry.coordinates, zoom });
+      });
+    });
+    map.on('mouseenter', 'photo-clusters', () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', 'photo-clusters', () => { map.getCanvas().style.cursor = ''; });
+  }
+
+  // photo toggle
+  let photosVisible = true;
+  function setPhotosVisible(v) {
+    photosVisible = v;
+    applyMapSport();
+    const btn = document.getElementById('btn-photos');
+    btn.classList.toggle('live', v);
+    btn.textContent = v ? '📷 Photos' : '📷 Photos off';
+  }
+  document.getElementById('btn-photos').onclick = () => setPhotosVisible(!photosVisible);
+
+  // Runs toggle (manual override within "All" mode) — default ON so All mode actually shows both
+  let runsManuallyOn = true;
+  function setRunsVisible(v) {
+    runsManuallyOn = v;
+    applyMapSport();
+    const btn = document.getElementById('btn-runs');
+    btn.classList.toggle('live', v);
+    btn.textContent = v ? `🏃 Runs (${(data.run_paths || []).length})` : '🏃 Runs';
+  }
+  document.getElementById('btn-runs').onclick = () => setRunsVisible(!runsManuallyOn);
+
+  // Global sport toggle → map layer visibility + photo filter
+  // Idempotent and self-retrying so it Just Works regardless of when it's called.
+  function applyMapSportNow() {
+    if (!map) return false;
+    if (!map.isStyleLoaded || !map.isStyleLoaded()) return false;
+    const showRides = currentSport === 'all' || currentSport === 'rides';
+    let showRuns;
+    if (currentSport === 'runs') showRuns = true;
+    else if (currentSport === 'rides') showRuns = false;
+    else /* all */ showRuns = runsManuallyOn;
+
+    const vis = (b) => b ? 'visible' : 'none';
+    ['rides', 'rides-glow', 'rides-hover'].forEach(id => {
+      if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', vis(showRides));
+    });
+    if (map.getLayer('runs')) map.setLayoutProperty('runs', 'visibility', vis(showRuns));
+    ['photo-clusters', 'photo-cluster-count', 'photos'].forEach(id => {
+      if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', vis(photosVisible));
+    });
+    if (map.getLayer('photos')) {
+      const idFilter = ['!', ['has', 'point_count']];
+      let kindFilter = null;
+      if (currentSport === 'rides') kindFilter = ['==', ['get', 'kind'], 'ride'];
+      else if (currentSport === 'runs') kindFilter = ['==', ['get', 'kind'], 'run'];
+      const filter = kindFilter ? ['all', idFilter, kindFilter] : idFilter;
+      map.setFilter('photos', filter);
+    }
+    // Sync the 🏃 button state to reflect actual layer visibility
+    const runsBtn = document.getElementById('btn-runs');
+    if (runsBtn) {
+      runsBtn.classList.toggle('live', showRuns);
+      runsBtn.textContent = showRuns ? `🏃 Runs (${(data.run_paths || []).length})` : '🏃 Runs';
+    }
+    return true;
+  }
+  // bbox cache, computed lazily — used to fly the camera to the sport's data
+  const sportBboxCache = {};
+  function bboxOfFC(fc) {
+    let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity, n = 0;
+    for (const f of fc.features) {
+      for (const c of f.geometry.coordinates) {
+        if (c[0] < minLng) minLng = c[0];
+        if (c[0] > maxLng) maxLng = c[0];
+        if (c[1] < minLat) minLat = c[1];
+        if (c[1] > maxLat) maxLat = c[1];
+      }
+      n++;
+    }
+    return n ? [[minLng, minLat], [maxLng, maxLat]] : null;
+  }
+  function fitToSport(sport) {
+    if (!map) return;
+    if (sport === 'all') { map.flyTo({ center: [10, 45], zoom: 1.6, speed: 0.9 }); return; }
+    if (!sportBboxCache[sport]) {
+      sportBboxCache[sport] = sport === 'runs'
+        ? bboxOfFC(runsGeoJSON)
+        : bboxOfFC(ridesGeoJSON);
+    }
+    const b = sportBboxCache[sport];
+    if (b) map.fitBounds(b, { padding: 80, duration: 1100, maxZoom: 13, speed: 0.9 });
+  }
+  applyMapSport = function () {
+    const ok = applyMapSportNow();
+    if (!ok) {
+      if (map && map.once) map.once('idle', applyMapSportNow);
+      setTimeout(applyMapSportNow, 250);
+      setTimeout(applyMapSportNow, 1200);
+    }
+    // Whenever the sport changes, also pan the camera to where that sport actually has data,
+    // so the user always sees something. Only fire if the sport actually changed.
+    if (applyMapSport.lastSport !== currentSport) {
+      applyMapSport.lastSport = currentSport;
+      // Don't fit on initial page load (when there's no prior sport)
+      if (map && map.isStyleLoaded && map.isStyleLoaded() && applyMapSport.initialized) {
+        fitToSport(currentSport);
+      }
+      applyMapSport.initialized = true;
+    }
+  };
+
+  // Run-trace click → reuse the ride-detail drawer for runs too
+  map.on('click', 'runs', (e) => {
+    if (!e.features.length) return;
+    const runId = e.features[0].properties.id;
+    const run = (data.run_paths || []).find(r => r.id === runId);
+    if (run) showRunDetail(run);
+  });
+  map.on('mouseenter', 'runs', () => { map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', 'runs', () => { map.getCanvas().style.cursor = ''; });
+
+  // ---- RIDE DETAIL DRAWER ----
+  const pathById = new Map(data.paths.map(p => [p.id, p]));
+  const drawer = document.getElementById('ride-detail');
+  document.getElementById('rd-close').onclick = () => drawer.classList.remove('on');
+
+  // Lightbox for opening a photo full-screen
+  const lightbox = document.getElementById('lightbox');
+  lightbox.querySelector('.lb-close').onclick = () => lightbox.classList.remove('on');
+  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.classList.remove('on'); });
+  function openLightbox(src, isVideo) {
+    lightbox.querySelector('.lb-body').innerHTML = isVideo
+      ? `<video src="${src}" controls autoplay></video>`
+      : `<img src="${src}" />`;
+    lightbox.classList.add('on');
+  }
+
+  function showRideDetail(id) {
+    const r = pathById.get(id);
+    if (!r) return;
+    const tags = [
+      r.commute && 'Commute',
+      r.workout && 'Workout',
+      r.race && 'Race',
+    ].filter(Boolean);
+    const isHotTag = (t) => t === 'Race' || t === 'Workout';
+    const stats = [
+      ['Distance', `${(+r.km).toFixed(1)}<span class="u"> km</span>`],
+      ['Elevation', `${(+r.elev || 0)}<span class="u"> m</span>`],
+      ['Avg speed', `${(+r.avg_kmh || 0).toFixed(1)}<span class="u"> km/h</span>`],
+      ['Region', r.region || '—'],
+    ];
+    const photos = (r.media || []).map(rel => {
+      const isVideo = /\.(mp4|mov|m4v)$/i.test(rel);
+      const src = rel; // path is already relative to project root: "media/<file>"
+      return { src: 'data/' + src, isVideo, name: rel };
+    });
+    const weather = r.weather;
+    const weatherHtml = weather ? `
+      <div class="rd-section">
+        <h3 style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-dim);margin:0 0 10px;">Weather</h3>
+        <div class="rd-meta">
+          ${weather.condition || ''}${weather.condition ? ' · ' : ''}
+          ${weather.temp != null ? Math.round(weather.temp) + ' °C' : ''}
+          ${weather.wind_speed != null ? ' · wind ' + (weather.wind_speed).toFixed(1) + ' m/s' : ''}
+          ${weather.precip ? ' · 💧 ' + (weather.precip).toFixed(2) : ''}
+        </div>
+      </div>` : '';
+    const content = `
+      <div class="rd-header">
+        <div class="rd-name">${r.name || 'Ride'}</div>
+        <div class="rd-date">${r.date || ''}</div>
+        ${tags.length ? `<div class="rd-chips">${tags.map(t => `<span class="rd-chip${isHotTag(t) ? ' hot' : ''}">${t}</span>`).join('')}</div>` : ''}
+      </div>
+      <div class="rd-section">
+        <div class="rd-stats">
+          ${stats.map(([l, v]) => `<div class="rd-stat"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('')}
+        </div>
+      </div>
+      ${r.description ? `<div class="rd-section"><div class="rd-desc">${escapeHtml(r.description)}</div></div>` : ''}
+      ${weatherHtml}
+      ${photos.length ? `
+        <div class="rd-photos">
+          <h4>${photos.length} photo${photos.length > 1 ? 's' : ''} & video${photos.length > 1 ? 's' : ''}</h4>
+          <div class="photo-grid">
+            ${photos.map((p, i) => p.isVideo
+              ? `<video class="${photos.length === 1 ? 'full-row' : ''}" src="${p.src}" muted preload="metadata" data-idx="${i}"></video>`
+              : `<img class="${photos.length === 1 ? 'full-row' : ''}" src="${p.src}" loading="lazy" data-idx="${i}" />`).join('')}
+          </div>
+          <a class="strava-link" href="https://www.strava.com/activities/${r.id}" target="_blank" rel="noopener">Open on Strava ↗</a>
+        </div>` : `
+        <div class="rd-photos">
+          <a class="strava-link" href="https://www.strava.com/activities/${r.id}" target="_blank" rel="noopener">Open on Strava ↗</a>
+        </div>`}
+    `;
+    drawer.querySelector('.rd-content').innerHTML = content;
+    // wire photo clicks → lightbox
+    drawer.querySelectorAll('.photo-grid img, .photo-grid video').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = +el.dataset.idx;
+        openLightbox(photos[idx].src, photos[idx].isVideo);
+      });
+    });
+    drawer.classList.add('on');
+  }
+
+  function showRunDetail(r) {
+    const photos = (r.media || []).map(rel => {
+      const isVideo = /\.(mp4|mov|m4v)$/i.test(rel);
+      return { src: 'data/' + rel, isVideo };
+    });
+    const paceStr = r.pace_min_km ? `${Math.floor(r.pace_min_km)}:${String(Math.round((r.pace_min_km % 1) * 60)).padStart(2, '0')} /km` : '—';
+    const stats = [
+      ['Distance', `${(+r.km).toFixed(1)}<span class="u"> km</span>`],
+      ['Elevation', `${(+r.elev || 0)}<span class="u"> m</span>`],
+      ['Pace', `${paceStr}`],
+      ['Sport', 'Run'],
+    ];
+    const content = `
+      <div class="rd-header">
+        <div class="rd-name">${r.name || 'Run'}</div>
+        <div class="rd-date">${r.date || ''}</div>
+        <div class="rd-chips"><span class="rd-chip" style="background:#6ee7b7;color:#0b0d10;border-color:#6ee7b7;">Run</span></div>
+      </div>
+      <div class="rd-section">
+        <div class="rd-stats">
+          ${stats.map(([l, v]) => `<div class="rd-stat"><div class="l">${l}</div><div class="v">${v}</div></div>`).join('')}
+        </div>
+      </div>
+      ${r.description ? `<div class="rd-section"><div class="rd-desc">${escapeHtml(r.description)}</div></div>` : ''}
+      ${photos.length ? `
+        <div class="rd-photos">
+          <h4>${photos.length} photo${photos.length > 1 ? 's' : ''}</h4>
+          <div class="photo-grid">
+            ${photos.map((p, i) => p.isVideo
+              ? `<video src="${p.src}" muted preload="metadata" data-idx="${i}"></video>`
+              : `<img src="${p.src}" loading="lazy" data-idx="${i}" />`).join('')}
+          </div>
+        </div>` : `<div class="rd-photos"><a class="strava-link" href="https://www.strava.com/activities/${r.id}" target="_blank" rel="noopener">Open on Strava ↗</a></div>`}
+    `;
+    drawer.querySelector('.rd-content').innerHTML = content;
+    drawer.querySelectorAll('.photo-grid img, .photo-grid video').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = +el.dataset.idx;
+        openLightbox(photos[idx].src, photos[idx].isVideo);
+      });
+    });
+    drawer.classList.add('on');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
   // ---- FILTERS ----
@@ -801,6 +2021,7 @@
     document.getElementById('globe-wrap').classList.add('ready');
     updateZoomReadout();
     applyFilter(activeFilter, { fit: false });
+    applyMapSport();
   });
 
   function updateZoomReadout() {
