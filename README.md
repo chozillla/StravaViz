@@ -37,6 +37,23 @@ Python-based — exact tooling TBD as I prototype. Likely candidates: a notebook
 
 Early. Repo is fresh; visualizations are being sketched and prototyped.
 
+### Ride Atlas (first view)
+
+A single-page view of every cycling activity I've ever logged: a hero stats band, a year-by-year volume/speed chart, and an interactive 3D globe of every outdoor GPS trace, colored cool→warm by year.
+
+Run it locally:
+
+```bash
+python3 -m http.server 8765
+# then open http://localhost:8765/index.html
+```
+
+To refresh the underlying data (pulls from Strava via the MCP, then aggregates):
+
+```bash
+python3 scripts/process.py   # re-runs the local consolidation step over data/pages/*.json
+```
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

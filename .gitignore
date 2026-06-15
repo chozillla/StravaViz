@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Raw Strava API page dumps — large, easily regenerable via the Strava MCP.
+# The processed data/rides.json (consumed by index.html) is committed instead.
+data/pages/

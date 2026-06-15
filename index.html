@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>StravaViz · Ride Atlas</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+<style>
+  :root, [data-theme="dark"] {
+    --bg: #0b0d10;
+    --bg-2: #11141a;
+    --ink: #e6e8eb;
+    --ink-dim: #8b919c;
+    --ink-faint: #4a505a;
+    --rule: #1c2029;
+    --accent: #f97316;
+    --ocean: #07090c;
+    --land: #161a21;
+    --land-stroke: #20252e;
+    --graticule: #161a22;
+    --sphere-ring: #2a2f3a;
+    --bar-cool: #2b313c;
+    --speed: #6ee7b7;
+    --ctrl-bg: #1a1f29;
+    --ctrl-bg-hover: #232836;
+    --ctrl-border: #232832;
+    --globe-bg-start: #11151c;
+    --globe-bg-end: #07090c;
+    --legend-bg: rgba(11, 13, 16, 0.7);
+    --tooltip-bg: rgba(11, 13, 16, 0.92);
+    --border: #232832;
+    --path-blend: lighten;
+    --gradient-cool: #4a90b8;
+    --gradient-warm: #f97316;
+  }
+  [data-theme="light"] {
+    --bg: #f6f5f1;
+    --bg-2: #ffffff;
+    --ink: #14171c;
+    --ink-dim: #5b6068;
+    --ink-faint: #9aa0a8;
+    --rule: #e4e3df;
+    --accent: #d65510;
+    --ocean: #e6ebf0;
+    --land: #f0ece2;
+    --land-stroke: #d6d2c6;
+    --graticule: #e8e3d3;
+    --sphere-ring: #c3bdaf;
+    --bar-cool: #d8d4c8;
+    --speed: #15803d;
+    --ctrl-bg: #ffffff;
+    --ctrl-bg-hover: #efece4;
+    --ctrl-border: #d8d4c8;
+    --globe-bg-start: #fbf9f3;
+    --globe-bg-end: #ece8dc;
+    --legend-bg: rgba(255, 255, 255, 0.86);
+    --tooltip-bg: rgba(255, 255, 255, 0.96);
+    --border: #d8d4c8;
+    --path-blend: multiply;
+    --gradient-cool: #2563eb;
+    --gradient-warm: #d65510;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  body { font-size: 15px; line-height: 1.45; }
+  a { color: inherit; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 56px 32px 96px; }
+  h1, h2, h3 { font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  h1 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-dim); font-weight: 500; }
+  h2 { font-size: 28px; line-height: 1.15; margin-top: 4px; }
+  h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-dim); font-weight: 500; }
+
+  .masthead { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 44px; flex-wrap: wrap; }
+  .masthead .meta { color: var(--ink-dim); font-size: 13px; letter-spacing: 0.02em; }
+  .masthead .right { display: flex; align-items: center; gap: 16px; }
+  .masthead .accent { color: var(--accent); }
+
+  .hero { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .hero .cell { padding: 28px 28px 28px 0; border-right: 1px solid var(--rule); }
+  .hero .cell:last-child { border-right: 0; padding-right: 0; }
+  .hero .cell:not(:first-child) { padding-left: 28px; }
+  .hero .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-dim); }
+  .hero .value { font-size: 42px; font-weight: 600; letter-spacing: -0.02em; margin-top: 8px; font-feature-settings: "tnum" 1; }
+  .hero .unit { font-size: 18px; color: var(--ink-dim); font-weight: 400; margin-left: 4px; letter-spacing: 0; }
+  .hero .sub { color: var(--ink-dim); margin-top: 6px; font-size: 12px; }
+
+  .section { margin-top: 72px; }
+  .section .head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 24px; }
+  .section .head .kicker { color: var(--ink-dim); font-size: 13px; }
+
+  /* trajectory */
+  .traj-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 28px; }
+  .panel { border: 1px solid var(--rule); background: var(--bg-2); border-radius: 6px; padding: 24px; }
+  .panel .head-mini { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+  .panel .head-mini h3 { font-size: 11px; }
+  .panel .head-mini .axis-note { font-size: 11px; color: var(--ink-faint); }
+
+  svg.chart { width: 100%; display: block; }
+  svg.chart .bar { fill: var(--bar-cool); }
+  svg.chart .bar.hot { fill: var(--accent); fill-opacity: 0.85; }
+  svg.chart .speed-line { fill: none; stroke: var(--speed); stroke-width: 2; }
+  svg.chart .speed-pt { fill: var(--speed); }
+  svg.chart .longest-line { fill: none; stroke: #93c5fd; stroke-width: 2; stroke-dasharray: 3 3; }
+  svg.chart .longest-pt { fill: #93c5fd; }
+  svg.chart text { fill: var(--ink-dim); font-size: 10px; font-family: inherit; }
+  svg.chart text.val { fill: var(--ink); font-size: 11px; font-feature-settings: "tnum" 1; }
+  svg.chart line.grid { stroke: var(--rule); }
+  svg.chart line.axis { stroke: var(--rule); }
+  svg.chart .scatter-dot { fill: var(--ink-dim); fill-opacity: 0.32; stroke: none; transition: fill-opacity 0.12s, fill 0.12s; }
+  svg.chart .scatter-dot.long { fill: var(--accent); fill-opacity: 0.55; }
+  svg.chart .scatter-dot.virtual { fill: none; stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 2 2; }
+  svg.chart .scatter-dot:hover { fill: var(--accent); fill-opacity: 0.9; }
+  svg.chart .roll-line { fill: none; stroke: var(--accent); stroke-width: 2.5; }
+  svg.chart .annotation { fill: var(--ink); font-size: 11px; font-weight: 500; paint-order: stroke; stroke: var(--bg-2); stroke-width: 4; stroke-linejoin: round; }
+  svg.chart .annotation.hot { fill: var(--accent); }
+
+  .prog-grid { display: grid; grid-template-columns: 1fr 280px; gap: 28px; }
+  .prog-legend { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--ink-dim); font-size: 11px; }
+  .prog-legend .lk { display: inline-flex; align-items: center; gap: 6px; }
+  .prog-legend .lk svg { flex-shrink: 0; }
+  .prog-panel .insights { display: flex; flex-direction: column; gap: 14px; }
+  .insight { border: 1px solid var(--rule); background: var(--bg-2); border-radius: 6px; padding: 16px; }
+  .insight .ltop { font-size: 11px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-dim); }
+  .insight .lval { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin-top: 6px; font-feature-settings: "tnum" 1; }
+  .insight .lsub { color: var(--ink-dim); font-size: 12px; margin-top: 4px; }
+  .insight .lval .delta { color: #6ee7b7; font-size: 13px; margin-left: 6px; }
+  .insight .lval .delta.down { color: #d04444; }
+  .prog-tooltip { position: absolute; background: var(--tooltip-bg); backdrop-filter: blur(8px); border: 1px solid var(--rule); border-radius: 4px; padding: 8px 10px; font-size: 12px; color: var(--ink); pointer-events: none; transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity 0.12s; box-shadow: 0 6px 20px rgba(0,0,0,0.25); font-feature-settings: "tnum" 1; white-space: nowrap; z-index: 5; }
+  .prog-tooltip.on { opacity: 1; }
+  .prog-tooltip .tt-name { font-weight: 500; margin-bottom: 4px; }
+  .prog-tooltip .tt-meta { color: var(--ink-dim); font-size: 11px; }
+
+  @media (max-width: 900px) {
+    .prog-grid { grid-template-columns: 1fr; }
+  }
+
+  .legend-row { display: flex; gap: 18px; font-size: 11px; color: var(--ink-dim); margin-top: 12px; align-items: center; }
+  .legend-row .sw { display: inline-block; width: 12px; height: 2px; vertical-align: middle; margin-right: 6px; }
+  .legend-row .sw.bar { height: 8px; width: 8px; }
+
+  /* yearly table on the side */
+  .ytable { width: 100%; border-collapse: collapse; font-size: 13px; font-feature-settings: "tnum" 1; }
+  .ytable th, .ytable td { text-align: right; padding: 8px 6px; border-bottom: 1px solid var(--rule); }
+  .ytable th:first-child, .ytable td:first-child { text-align: left; }
+  .ytable th { color: var(--ink-dim); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; }
+  .ytable tr.now td { color: var(--accent); }
+  .ytable td .delta { color: var(--speed); font-size: 11px; margin-left: 6px; }
+  .ytable td .delta.down { color: #d04444; }
+
+  /* globe / map */
+  .globe-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 28px; }
+  .globe-wrap { position: relative; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg-2); overflow: hidden; aspect-ratio: 1.05 / 1; }
+  #map { position: absolute; inset: 0; }
+  /* MapLibre attribution: keep small, themed */
+  .maplibregl-ctrl-bottom-right { display: none; }
+  .maplibregl-ctrl-attrib.maplibregl-compact { background: var(--legend-bg) !important; }
+  .maplibregl-ctrl-attrib a { color: var(--ink-dim) !important; }
+  .globe-wrap .controls { position: absolute; left: 16px; bottom: 16px; display: flex; gap: 6px; flex-wrap: wrap; max-width: calc(100% - 32px); z-index: 5; }
+  .globe-wrap .controls button { background: var(--ctrl-bg); color: var(--ink); border: 1px solid var(--ctrl-border); border-radius: 4px; padding: 6px 10px; font-size: 11px; cursor: pointer; letter-spacing: 0.04em; font-family: inherit; }
+  .globe-wrap .controls button:hover { background: var(--ctrl-bg-hover); }
+  .globe-wrap .controls button.live { color: var(--accent); border-color: var(--accent); }
+  .globe-wrap .zoom-ctl { position: absolute; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 4px; background: var(--legend-bg); backdrop-filter: blur(8px); border: 1px solid var(--rule); border-radius: 6px; padding: 4px; z-index: 5; }
+  .globe-wrap .zoom-ctl button { background: transparent; color: var(--ink); border: 0; width: 28px; height: 24px; cursor: pointer; font-size: 14px; font-family: inherit; border-radius: 3px; }
+  .globe-wrap .zoom-ctl button:hover { background: var(--ctrl-bg-hover); }
+  .globe-wrap .zoom-ctl .zoom-readout { color: var(--ink-dim); text-align: center; font-size: 10px; font-feature-settings: "tnum" 1; padding: 2px 0; min-width: 28px; }
+  .globe-wrap .legend { position: absolute; right: 16px; top: 16px; background: var(--legend-bg); backdrop-filter: blur(8px); border: 1px solid var(--rule); padding: 12px 14px; border-radius: 6px; font-size: 11px; min-width: 180px; z-index: 5; }
+  .globe-wrap .legend .row { display: flex; align-items: center; gap: 8px; }
+  .globe-wrap .legend .bar { height: 6px; flex: 1; background: linear-gradient(to right, var(--gradient-cool), var(--gradient-warm)); border-radius: 2px; margin: 4px 0; }
+  .globe-wrap .legend .scale { display: flex; justify-content: space-between; color: var(--ink-dim); font-size: 10px; }
+  .globe-wrap .tooltip { position: absolute; pointer-events: none; background: var(--tooltip-bg); backdrop-filter: blur(8px); border: 1px solid var(--rule); border-radius: 4px; padding: 8px 10px; font-size: 12px; color: var(--ink); transform: translate(-50%, calc(-100% - 12px)); opacity: 0; transition: opacity 0.12s; max-width: 220px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); font-feature-settings: "tnum" 1; z-index: 6; white-space: nowrap; }
+  .globe-wrap .tooltip.on { opacity: 1; }
+  .globe-wrap .tooltip .tt-name { font-weight: 500; margin-bottom: 4px; }
+  .globe-wrap .tooltip .tt-meta { color: var(--ink-dim); font-size: 11px; }
+  .globe-wrap .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--ink-dim); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; pointer-events: none; }
+  .globe-wrap.ready .loading { display: none; }
+
+  /* filter chips */
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .filter-row .chip { background: var(--bg-2); color: var(--ink-dim); border: 1px solid var(--rule); border-radius: 999px; padding: 7px 14px; font-size: 12px; font-family: inherit; cursor: pointer; letter-spacing: 0.02em; transition: color 0.12s, border-color 0.12s, background 0.12s; display: inline-flex; align-items: center; gap: 8px; }
+  .filter-row .chip:hover { color: var(--ink); border-color: var(--ink-dim); }
+  .filter-row .chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .filter-row .chip .n { font-feature-settings: "tnum" 1; opacity: 0.65; font-size: 11px; }
+  .filter-row .chip.on .n { opacity: 0.85; color: rgba(255,255,255,0.9); }
+  .filter-row .filter-readout { color: var(--ink-dim); font-size: 11px; margin-left: auto; font-feature-settings: "tnum" 1; }
+
+  /* theme toggle */
+  .theme-toggle { background: transparent; color: var(--ink-dim); border: 1px solid var(--rule); border-radius: 999px; padding: 6px 14px; font-size: 11px; cursor: pointer; font-family: inherit; letter-spacing: 0.08em; text-transform: uppercase; transition: color 0.15s, border-color 0.15s; }
+  .theme-toggle:hover { color: var(--ink); border-color: var(--ink-dim); }
+
+  .regions { display: flex; flex-direction: column; gap: 14px; }
+  .regions .region { border: 1px solid var(--rule); background: var(--bg-2); border-radius: 6px; padding: 16px 18px; cursor: pointer; transition: border-color 0.15s, opacity 0.15s; }
+  .regions .region:hover { border-color: var(--accent); }
+  .regions .region.empty { opacity: 0.35; cursor: default; }
+  .regions .region.empty:hover { border-color: var(--rule); }
+  .regions .region .name { font-size: 16px; font-weight: 500; }
+  .regions .region .stats { display: flex; gap: 16px; margin-top: 6px; color: var(--ink-dim); font-size: 12px; font-feature-settings: "tnum" 1; }
+  .regions .region .stats b { color: var(--ink); font-weight: 500; }
+  .regions .region .bar { margin-top: 10px; height: 3px; background: var(--rule); border-radius: 2px; overflow: hidden; }
+  .regions .region .bar .fill { height: 100%; background: var(--accent); }
+
+  .footnote { color: var(--ink-faint); font-size: 11px; margin-top: 56px; text-align: center; letter-spacing: 0.02em; }
+
+  @media (max-width: 900px) {
+    .wrap { padding: 32px 18px 64px; }
+    .hero { grid-template-columns: repeat(2, 1fr); }
+    .hero .cell { padding: 20px; border-right: 0; border-bottom: 1px solid var(--rule); }
+    .hero .cell:nth-child(odd) { border-right: 1px solid var(--rule); }
+    .traj-grid, .globe-grid { grid-template-columns: 1fr; }
+    .hero .value { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <h1>StravaViz</h1>
+      <h2>Ride Atlas <span class="accent">·</span> <span id="span-years"></span></h2>
+    </div>
+    <div class="right">
+      <div class="meta" id="span-generated"></div>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme"></button>
+    </div>
+  </div>
+
+  <div class="hero" id="hero"></div>
+
+  <div class="section">
+    <div class="head">
+      <h3>How it's gone</h3>
+      <span class="kicker">Volume up. Speed up. Year on year.</span>
+    </div>
+    <div class="traj-grid">
+      <div class="panel">
+        <div class="head-mini">
+          <h3>Year by year</h3>
+          <span class="axis-note">bars: total km · line: avg km/h</span>
+        </div>
+        <svg class="chart" id="chart-yearly" viewBox="0 0 720 320" preserveAspectRatio="none"></svg>
+        <div class="legend-row">
+          <span><span class="sw bar" style="background:#f97316"></span>Total km ridden</span>
+          <span><span class="sw" style="background:#6ee7b7"></span>Average speed</span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="head-mini"><h3>The numbers</h3></div>
+        <table class="ytable" id="table-yearly"></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="head">
+      <h3>Ride progression</h3>
+      <span class="kicker">Every ride plotted by date and average speed — bigger dots are longer rides.</span>
+    </div>
+    <div class="prog-grid">
+      <div class="panel prog-panel" style="position: relative;">
+        <div class="head-mini">
+          <h3>Date × Avg speed</h3>
+          <span class="axis-note">dot size = distance</span>
+        </div>
+        <svg class="chart" id="chart-progression" viewBox="0 0 760 360" preserveAspectRatio="none"></svg>
+        <div class="prog-legend">
+          <span class="lk">
+            <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4.5" fill="var(--ink-dim)" fill-opacity="0.45"/></svg>
+            A ride
+          </span>
+          <span class="lk">
+            <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" fill="var(--accent)" fill-opacity="0.7"/></svg>
+            Long ride (≥ 80 km)
+          </span>
+          <span class="lk">
+            <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" fill="none" stroke="var(--ink-faint)" stroke-width="1.2" stroke-dasharray="2 2"/></svg>
+            Indoor (Zwift)
+          </span>
+          <span class="lk">
+            <svg width="28" height="10" viewBox="0 0 28 10"><line x1="2" y1="5" x2="26" y2="5" stroke="var(--accent)" stroke-width="2.5"/></svg>
+            Rolling-30 avg speed
+          </span>
+          <span class="lk">
+            <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="3" fill="var(--ink-dim)" fill-opacity="0.3"/><circle cx="8" cy="8" r="6" fill="var(--ink-dim)" fill-opacity="0.18"/></svg>
+            Bigger dot = longer ride
+          </span>
+        </div>
+        <div class="prog-tooltip" id="prog-tooltip"><div class="tt-name"></div><div class="tt-meta"></div></div>
+      </div>
+      <div class="prog-panel">
+        <div class="insights" id="insights"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="head">
+      <h3>Where I've ridden</h3>
+      <span class="kicker">Every outdoor GPS trace, filterable by category.</span>
+    </div>
+    <div class="filter-row" id="filter-row"></div>
+    <div class="globe-grid">
+      <div class="globe-wrap" id="globe-wrap">
+        <div id="map"></div>
+        <div class="loading">Loading tiles…</div>
+        <div class="controls">
+          <button id="btn-home">🌍 World</button>
+          <button id="btn-cph">Copenhagen</button>
+          <button id="btn-sea">Seattle</button>
+          <button id="btn-mlc">Mallorca</button>
+        </div>
+        <div class="zoom-ctl">
+          <button id="zoom-in" title="Zoom in">+</button>
+          <div class="zoom-readout" id="zoom-readout">z 2</div>
+          <button id="zoom-out" title="Zoom out">−</button>
+        </div>
+        <div class="legend">
+          <div class="row"><strong>Ride year</strong></div>
+          <div class="bar"></div>
+          <div class="scale"><span id="lg-min"></span><span id="lg-max"></span></div>
+          <div style="margin-top:10px; color: var(--ink-dim);" id="globe-stats"></div>
+          <div style="margin-top:6px; color: var(--ink-faint); font-size: 10px;">scroll · drag · hover a trace</div>
+        </div>
+        <div class="tooltip" id="tooltip"><div class="tt-name"></div><div class="tt-meta"></div></div>
+      </div>
+      <div class="regions" id="regions"></div>
+    </div>
+  </div>
+
+  <div class="footnote">Generated from Strava activity history · all rides decoded from reduced polylines · year tint goes cool → warm</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+(async function() {
+  // ---- THEME ----
+  const root = document.documentElement;
+  const tBtn = document.getElementById('theme-toggle');
+  function setTheme(t) {
+    root.setAttribute('data-theme', t);
+    tBtn.textContent = t === 'light' ? '☾ Dark' : '☀ Light';
+    try { localStorage.setItem('stravaviz-theme', t); } catch (e) {}
+  }
+  let initialTheme = 'dark';
+  try { initialTheme = localStorage.getItem('stravaviz-theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); } catch (e) {}
+  setTheme(initialTheme);
+  let onThemeChange = null;
+  tBtn.addEventListener('click', () => {
+    setTheme(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+    if (onThemeChange) onThemeChange();
+  });
+
+  const data = await (await fetch('data/rides.json')).json();
+
+  const fmt = (n, d = 0) => n == null ? '—' : Number(n).toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
+  const fmtKm = n => fmt(n, 0) + ' km';
+  const yMin = data.yearly[0].year, yMax = data.yearly[data.yearly.length - 1].year;
+
+  document.getElementById('span-years').textContent = `${yMin}–${yMax}`;
+  document.getElementById('span-generated').textContent = `Last ride: ${data.generated_at?.slice(0, 10) ?? '—'}`;
+
+  // ---- HERO ----
+  const t = data.totals;
+  const hero = document.getElementById('hero');
+  const cells = [
+    { label: 'Distance', value: fmt(t.distance_km, 0), unit: 'km', sub: `${fmt(t.distance_km / 40075 * 100, 1)}% around the planet` },
+    { label: 'Time in the saddle', value: fmt(t.moving_h, 0), unit: 'h', sub: `${fmt(t.moving_h / 24, 1)} full days riding` },
+    { label: 'Elevation gained', value: fmt(t.elev_m / 1000, 1), unit: 'km', sub: `≈ ${fmt(t.elev_m / 8849, 2)} × Everest` },
+    { label: 'Rides logged', value: fmt(t.rides), unit: '', sub: `${fmt(t.outdoor)} outdoor · ${fmt(t.virtual)} on Zwift` },
+  ];
+  hero.innerHTML = cells.map(c => `
+    <div class="cell">
+      <div class="label">${c.label}</div>
+      <div class="value">${c.value}<span class="unit">${c.unit}</span></div>
+      <div class="sub">${c.sub}</div>
+    </div>`).join('');
+
+  // ---- YEARLY CHART ----
+  const yrs = data.yearly;
+  const svg = d3.select('#chart-yearly');
+  const W = 720, H = 320;
+  const margin = { t: 24, r: 50, b: 30, l: 44 };
+  const innerW = W - margin.l - margin.r, innerH = H - margin.t - margin.b;
+  const x = d3.scaleBand().domain(yrs.map(d => d.year)).range([0, innerW]).padding(0.25);
+  const yKm = d3.scaleLinear().domain([0, d3.max(yrs, d => d.distance_km)]).nice().range([innerH, 0]);
+  const ySpd = d3.scaleLinear().domain([10, 30]).range([innerH, 0]);
+
+  const g = svg.append('g').attr('transform', `translate(${margin.l},${margin.t})`);
+  // grid
+  yKm.ticks(4).forEach(t => {
+    g.append('line').attr('class', 'grid').attr('x1', 0).attr('x2', innerW).attr('y1', yKm(t)).attr('y2', yKm(t));
+    g.append('text').attr('x', -8).attr('y', yKm(t) + 3).attr('text-anchor', 'end').text(t.toLocaleString());
+  });
+  // axes labels
+  g.append('text').attr('x', -36).attr('y', -10).text('km').attr('text-anchor', 'start');
+  g.append('text').attr('x', innerW + 8).attr('y', -10).text('km/h').attr('text-anchor', 'start');
+  // bars
+  g.selectAll('rect.bar').data(yrs).enter().append('rect')
+    .attr('class', d => 'bar' + (d.year === yMax ? ' hot' : ''))
+    .attr('x', d => x(d.year)).attr('width', x.bandwidth())
+    .attr('y', d => yKm(d.distance_km)).attr('height', d => innerH - yKm(d.distance_km))
+    .attr('rx', 2);
+  // x labels + km values
+  g.selectAll('text.year-lbl').data(yrs).enter().append('text')
+    .attr('class', 'year-lbl').attr('x', d => x(d.year) + x.bandwidth() / 2).attr('y', innerH + 18)
+    .attr('text-anchor', 'middle').text(d => d.year);
+  // avg speed line
+  const spdLine = d3.line().x(d => x(d.year) + x.bandwidth() / 2).y(d => ySpd(d.avg_kmh)).curve(d3.curveMonotoneX);
+  g.append('path').datum(yrs).attr('class', 'speed-line').attr('d', spdLine);
+  g.selectAll('circle.speed-pt').data(yrs).enter().append('circle')
+    .attr('class', 'speed-pt').attr('cx', d => x(d.year) + x.bandwidth() / 2)
+    .attr('cy', d => ySpd(d.avg_kmh)).attr('r', 3);
+  // right-axis (speed) ticks
+  [15, 20, 25, 30].forEach(t => {
+    g.append('text').attr('x', innerW + 8).attr('y', ySpd(t) + 3).text(t);
+  });
+
+  // ---- PROGRESSION CHART ----
+  (function buildProgression() {
+    const rc = data.rides_chart;
+    if (!rc || !rc.length) return;
+    const svg = d3.select('#chart-progression');
+    const W = 760, H = 360;
+    const m = { t: 24, r: 24, b: 36, l: 44 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const g = svg.append('g').attr('transform', `translate(${m.l},${m.t})`);
+
+    const dates = rc.map(r => new Date(r.date));
+    const x = d3.scaleTime().domain([dates[0], dates[dates.length - 1]]).range([0, iw]);
+    const ySpd = d3.scaleLinear().domain([5, 30]).range([ih, 0]);
+    const rScale = d3.scaleSqrt().domain([0, d3.max(rc, r => r.km)]).range([2, 14]);
+
+    // y-grid + ticks
+    [10, 15, 20, 25, 30].forEach(t => {
+      g.append('line').attr('class', 'grid').attr('x1', 0).attr('x2', iw).attr('y1', ySpd(t)).attr('y2', ySpd(t));
+      g.append('text').attr('x', -8).attr('y', ySpd(t) + 3).attr('text-anchor', 'end').text(t);
+    });
+    g.append('text').attr('x', -36).attr('y', -10).text('km/h').attr('text-anchor', 'start');
+
+    // year boundary ticks on x-axis
+    const yrTicks = d3.range(yMin, yMax + 1).map(y => new Date(`${y}-01-01`));
+    yrTicks.forEach(d => {
+      g.append('line').attr('class', 'grid').attr('x1', x(d)).attr('x2', x(d)).attr('y1', 0).attr('y2', ih).attr('stroke-opacity', 0.4);
+      g.append('text').attr('x', x(d)).attr('y', ih + 16).attr('text-anchor', 'middle').text(d.getFullYear());
+    });
+
+    // dots (sorted by km desc so big rides sit behind small ones — small ones become clickable focal points)
+    const LONG_KM = 80;
+    const sorted = rc.slice().sort((a, b) => b.km - a.km);
+    const dots = g.selectAll('circle.scatter-dot').data(sorted).enter().append('circle')
+      .attr('class', d => {
+        const c = ['scatter-dot'];
+        if (d.sport === 'VirtualRide') c.push('virtual');
+        else if (d.km >= LONG_KM) c.push('long');
+        return c.join(' ');
+      })
+      .attr('cx', d => x(new Date(d.date)))
+      .attr('cy', d => ySpd(d.kmh))
+      .attr('r', d => rScale(d.km));
+
+    // rolling-30 line
+    const line = d3.line().x(d => x(new Date(d.date))).y(d => ySpd(d.roll_kmh)).curve(d3.curveMonotoneX);
+    g.append('path').datum(rc).attr('class', 'roll-line').attr('d', line);
+
+    // annotate endpoints — pulled vertically away from the rolling line so they sit clear of it
+    const first = rc[0], last = rc[rc.length - 1];
+    g.append('text').attr('class', 'annotation').attr('x', x(new Date(first.date)) + 10).attr('y', ySpd(first.roll_kmh) + 16).text(`${first.roll_kmh.toFixed(1)} km/h`);
+    g.append('text').attr('class', 'annotation hot').attr('x', x(new Date(last.date)) - 10).attr('y', ySpd(last.roll_kmh) - 12).attr('text-anchor', 'end').text(`${last.roll_kmh.toFixed(1)} km/h`);
+
+    // tooltip
+    const tt = document.getElementById('prog-tooltip');
+    const ttName = tt.querySelector('.tt-name'), ttMeta = tt.querySelector('.tt-meta');
+    const panel = tt.parentElement;
+    dots
+      .on('mouseenter', (event, d) => {
+        ttName.textContent = d.name || 'Ride';
+        const tags = [d.commute && 'commute', d.workout && 'workout', d.sport === 'VirtualRide' && 'virtual'].filter(Boolean).join(' · ');
+        ttMeta.textContent = `${d.date} · ${d.km.toFixed(1)} km · ${d.kmh.toFixed(1)} km/h${tags ? ' · ' + tags : ''}`;
+        tt.classList.add('on');
+      })
+      .on('mousemove', (event) => {
+        const r = panel.getBoundingClientRect();
+        tt.style.left = (event.clientX - r.left) + 'px';
+        tt.style.top = (event.clientY - r.top) + 'px';
+      })
+      .on('mouseleave', () => tt.classList.remove('on'));
+  })();
+
+  // ---- INSIGHTS (numerical "improvement" callouts) ----
+  (function buildInsights() {
+    const rc = data.rides_chart;
+    const first = rc[0], last = rc[rc.length - 1];
+    const firstYearAvg = d3.mean(rc.filter(r => r.year === yMin), r => r.kmh);
+    const lastYearAvg = d3.mean(rc.filter(r => r.year === yMax), r => r.kmh);
+    const speedDelta = lastYearAvg - firstYearAvg;
+    const longestEver = rc.reduce((a, r) => r.km > a.km ? r : a);
+    const longestFirstYear = rc.filter(r => r.year === yMin).reduce((a, r) => r.km > a.km ? r : a, { km: 0 });
+    const longestNow = data.yearly[data.yearly.length - 1].longest_km;
+    const ridesNow = data.yearly[data.yearly.length - 1].rides;
+    const ridesFirst = data.yearly[0].rides;
+    const totalYears = yMax - yMin + 1;
+    const peakRoll = rc.reduce((a, r) => r.roll_kmh > a.roll_kmh ? r : a);
+
+    const insights = [
+      {
+        top: 'Avg speed',
+        val: `${last.roll_kmh.toFixed(1)} <span style="font-size:13px;color:var(--ink-dim)">km/h</span>`,
+        delta: speedDelta > 0 ? `▲ ${speedDelta.toFixed(1)} km/h` : `▼ ${Math.abs(speedDelta).toFixed(1)} km/h`,
+        down: speedDelta < 0,
+        sub: `${yMin} avg was ${firstYearAvg.toFixed(1)} km/h · rolling-30 today`,
+      },
+      {
+        top: 'Longest ride',
+        val: `${longestEver.km.toFixed(0)} <span style="font-size:13px;color:var(--ink-dim)">km</span>`,
+        sub: `${longestEver.name || 'Ride'} · ${longestEver.date}`,
+      },
+      {
+        top: 'Riding more',
+        val: `${ridesNow} <span style="font-size:13px;color:var(--ink-dim)">rides ${yMax}</span>`,
+        delta: `× ${(ridesNow / Math.max(1, ridesFirst)).toFixed(1)} vs ${yMin}`,
+        sub: `Across ${totalYears} years on Strava`,
+      },
+      {
+        top: 'Peak form',
+        val: `${peakRoll.roll_kmh.toFixed(1)} <span style="font-size:13px;color:var(--ink-dim)">km/h</span>`,
+        sub: `Rolling-30 peak hit ${peakRoll.date}`,
+      },
+    ];
+    document.getElementById('insights').innerHTML = insights.map(i => `
+      <div class="insight">
+        <div class="ltop">${i.top}</div>
+        <div class="lval">${i.val}${i.delta ? ` <span class="delta${i.down ? ' down' : ''}">${i.delta}</span>` : ''}</div>
+        <div class="lsub">${i.sub}</div>
+      </div>`).join('');
+  })();
+
+  // ---- YEARLY TABLE ----
+  const tbl = document.getElementById('table-yearly');
+  const head = `<thead><tr><th>Year</th><th>Rides</th><th>km</th><th>Avg km/h</th><th>Longest</th></tr></thead>`;
+  const rows = yrs.map((y, i) => {
+    const prev = yrs[i - 1];
+    const dDist = prev ? y.distance_km - prev.distance_km : null;
+    const dSpd = prev ? y.avg_kmh - prev.avg_kmh : null;
+    const delta = (v, unit, d = 0) => v == null ? '' : `<span class="delta${v < 0 ? ' down' : ''}">${v >= 0 ? '▲' : '▼'} ${fmt(Math.abs(v), d)}${unit}</span>`;
+    return `<tr class="${y.year === yMax ? 'now' : ''}">
+      <td>${y.year}</td>
+      <td>${y.rides}</td>
+      <td>${fmt(y.distance_km, 0)}${delta(dDist, '', 0)}</td>
+      <td>${fmt(y.avg_kmh, 1)}${delta(dSpd, '', 1)}</td>
+      <td>${fmt(y.longest_km, 0)}</td>
+    </tr>`;
+  }).join('');
+  tbl.innerHTML = head + '<tbody>' + rows + '</tbody>';
+
+  // ---- MAP (MapLibre GL with globe projection + real tiles) ----
+  document.getElementById('lg-min').textContent = yMin;
+  document.getElementById('lg-max').textContent = yMax;
+  document.getElementById('globe-stats').innerHTML =
+    `${fmt(data.paths.length)} traces · ${fmt(data.totals.elev_m / 1000, 1)} km elevation`;
+
+  // GeoJSON FeatureCollection of all rides — stored once, reused across style swaps
+  const ridesGeoJSON = {
+    type: 'FeatureCollection',
+    features: data.paths
+      .slice()
+      .sort((a, b) => a.year - b.year) // newer on top
+      .map(r => ({
+        type: 'Feature',
+        properties: {
+          id: r.id, name: r.name, year: r.year, km: r.km,
+          commute: !!r.commute, workout: !!r.workout, race: !!r.race,
+          region: r.region || 'Other',
+        },
+        geometry: { type: 'LineString', coordinates: r.path.map(([lat, lng]) => [lng, lat]) },
+      })),
+  };
+  const totalFeatures = ridesGeoJSON.features.length;
+
+  // color stops by year, theme-aware via CSS variables
+  function colorVar(name) { return getComputedStyle(root).getPropertyValue(name).trim() || '#000'; }
+  function yearColorExpr() {
+    const cool = colorVar('--gradient-cool'), warm = colorVar('--gradient-warm');
+    return ['interpolate', ['linear'], ['get', 'year'], yMin, cool, yMax, warm];
+  }
+
+  // light/dark style URLs — free vector tiles, no API key
+  const STYLES = {
+    dark: 'https://tiles.openfreemap.org/styles/dark',
+    light: 'https://tiles.openfreemap.org/styles/positron',
+  };
+
+  const map = new maplibregl.Map({
+    container: 'map',
+    style: STYLES[root.getAttribute('data-theme') === 'light' ? 'light' : 'dark'],
+    center: [12.55, 55.68],
+    zoom: 1.4,
+    minZoom: 0.5,
+    maxZoom: 17,
+    attributionControl: { compact: true },
+    pitchWithRotate: false,
+  });
+  // smooth scroll-wheel zoom feel
+  map.scrollZoom.setWheelZoomRate(1 / 200);
+  map.scrollZoom.setZoomRate(1 / 200);
+  // disable default rotation controls (cleaner UX)
+  map.dragRotate.disable();
+  map.touchZoomRotate.disableRotation();
+
+  // try globe projection (graceful fallback if unsupported)
+  try { map.setProjection({ type: 'globe' }); } catch (e) { /* older maplibre, skip */ }
+
+  function firstSymbolLayerId() {
+    const layers = map.getStyle().layers || [];
+    const m = layers.find(l => l.type === 'symbol');
+    return m ? m.id : undefined;
+  }
+
+  function addRidesLayer() {
+    if (!map.getSource('rides')) {
+      map.addSource('rides', { type: 'geojson', data: ridesGeoJSON, generateId: true });
+    } else {
+      map.getSource('rides').setData(ridesGeoJSON);
+    }
+    // Insert ride layers BELOW the first symbol (label) layer so city / street names stay legible.
+    const beforeId = firstSymbolLayerId();
+    if (!map.getLayer('rides-glow')) {
+      map.addLayer({
+        id: 'rides-glow',
+        type: 'line',
+        source: 'rides',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': yearColorExpr(),
+          'line-blur': 4,
+          'line-opacity': [
+            'interpolate', ['linear'], ['zoom'],
+            1, 0.30,
+            8, 0.25,
+            13, 0.18,
+          ],
+          'line-width': [
+            'interpolate', ['linear'], ['zoom'],
+            1, 1.5,
+            6, 2.5,
+            10, 4,
+            14, 6,
+          ],
+        },
+      }, beforeId);
+    } else {
+      map.setPaintProperty('rides-glow', 'line-color', yearColorExpr());
+    }
+    if (!map.getLayer('rides')) {
+      map.addLayer({
+        id: 'rides',
+        type: 'line',
+        source: 'rides',
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': yearColorExpr(),
+          'line-opacity': [
+            'interpolate', ['linear'], ['zoom'],
+            1, 0.55,
+            6, 0.65,
+            10, 0.7,
+            14, 0.78,
+          ],
+          'line-width': [
+            'interpolate', ['linear'], ['zoom'],
+            1, 0.4,
+            4, 0.8,
+            8, 1.4,
+            12, 2.2,
+            16, 3.6,
+          ],
+        },
+      }, beforeId);
+      // hover layer: highlights the trace under the cursor
+      map.addLayer({
+        id: 'rides-hover',
+        type: 'line',
+        source: 'rides',
+        filter: ['==', ['id'], -1],
+        layout: { 'line-cap': 'round', 'line-join': 'round' },
+        paint: {
+          'line-color': colorVar('--accent') || '#f97316',
+          'line-width': [
+            'interpolate', ['linear'], ['zoom'],
+            1, 1.5,
+            6, 2.5,
+            12, 4.5,
+            16, 7,
+          ],
+          'line-opacity': 1,
+        },
+      }, beforeId);
+    } else {
+      map.setPaintProperty('rides', 'line-color', yearColorExpr());
+      map.setPaintProperty('rides-hover', 'line-color', colorVar('--accent') || '#f97316');
+    }
+  }
+
+  // tooltip
+  const tip = document.getElementById('tooltip');
+  const wrap = document.querySelector('.globe-wrap');
+  let hoveredId = null;
+  function hoverFilter(id, typeExpr) {
+    const idExpr = id == null ? ['==', ['id'], -1] : ['==', ['id'], id];
+    return typeExpr ? ['all', idExpr, typeExpr] : idExpr;
+  }
+  function setHover(id) {
+    if (hoveredId === id) return;
+    hoveredId = id;
+    if (map.getLayer('rides-hover')) {
+      const typeExpr = FILTERS.find(x => x.key === activeFilter).expr;
+      map.setFilter('rides-hover', hoverFilter(id, typeExpr));
+    }
+  }
+
+  function bindMapInteractions() {
+    map.on('mousemove', 'rides', (e) => {
+      if (!e.features.length) return;
+      const f = e.features[0];
+      const p = f.properties;
+      setHover(f.id);
+      tip.querySelector('.tt-name').textContent = p.name || 'Ride';
+      tip.querySelector('.tt-meta').textContent = `${p.year} · ${(+p.km).toFixed(1)} km`;
+      tip.classList.add('on');
+      const rect = wrap.getBoundingClientRect();
+      tip.style.left = (e.originalEvent.clientX - rect.left) + 'px';
+      tip.style.top = (e.originalEvent.clientY - rect.top) + 'px';
+      map.getCanvas().style.cursor = 'pointer';
+    });
+    map.on('mouseleave', 'rides', () => {
+      setHover(null);
+      tip.classList.remove('on');
+      map.getCanvas().style.cursor = '';
+    });
+  }
+
+  // ---- FILTERS ----
+  const FILTERS = [
+    { key: 'all',        label: 'All rides',    expr: null,                                  match: () => true },
+    { key: 'commute',    label: 'Commute',      expr: ['==', ['get', 'commute'], true],      match: f => f.properties.commute },
+    { key: 'noncommute', label: 'Non-commute',  expr: ['!=', ['get', 'commute'], true],      match: f => !f.properties.commute },
+    { key: 'workout',    label: 'Workout',      expr: ['==', ['get', 'workout'], true],      match: f => f.properties.workout },
+  ];
+  let activeFilter = 'all';
+  let postFilterHook = () => {};
+
+  const filterRow = document.getElementById('filter-row');
+  filterRow.innerHTML = FILTERS.map(f => {
+    const n = ridesGeoJSON.features.filter(ft => f.match(ft)).length;
+    return `<button class="chip${f.key === 'all' ? ' on' : ''}" data-key="${f.key}">${f.label} <span class="n">${n}</span></button>`;
+  }).join('') + `<span class="filter-readout" id="filter-readout">showing ${totalFeatures} of ${totalFeatures}</span>`;
+
+  function filterBounds(matchFn) {
+    let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity, count = 0;
+    for (const ft of ridesGeoJSON.features) {
+      if (!matchFn(ft)) continue;
+      for (const c of ft.geometry.coordinates) {
+        if (c[0] < minLng) minLng = c[0];
+        if (c[0] > maxLng) maxLng = c[0];
+        if (c[1] < minLat) minLat = c[1];
+        if (c[1] > maxLat) maxLat = c[1];
+      }
+      count++;
+    }
+    return count ? { bbox: [[minLng, minLat], [maxLng, maxLat]], count } : null;
+  }
+
+  function applyFilter(key, opts = {}) {
+    activeFilter = key;
+    const f = FILTERS.find(x => x.key === key);
+    const expr = f.expr;
+    if (map.getLayer('rides')) map.setFilter('rides', expr);
+    if (map.getLayer('rides-glow')) map.setFilter('rides-glow', expr);
+    if (map.getLayer('rides-hover')) {
+      map.setFilter('rides-hover', hoverFilter(hoveredId, expr));
+    }
+    filterRow.querySelectorAll('.chip').forEach(el => el.classList.toggle('on', el.dataset.key === key));
+    const b = filterBounds(f.match);
+    document.getElementById('filter-readout').textContent = `showing ${b ? b.count : 0} of ${totalFeatures}`;
+    if (opts.fit !== false && b) {
+      // For "all" the bbox spans continents — just go to a sensible world view
+      if (key === 'all') {
+        map.flyTo({ center: [10, 45], zoom: 1.6, speed: 0.9 });
+      } else {
+        map.fitBounds(b.bbox, { padding: 80, duration: 1100, maxZoom: 13, speed: 0.9 });
+      }
+    }
+    postFilterHook();
+  }
+  filterRow.querySelectorAll('.chip').forEach(el => {
+    el.addEventListener('click', () => applyFilter(el.dataset.key));
+  });
+
+  map.on('load', () => {
+    addRidesLayer();
+    bindMapInteractions();
+    document.getElementById('globe-wrap').classList.add('ready');
+    updateZoomReadout();
+    applyFilter(activeFilter, { fit: false });
+  });
+
+  function updateZoomReadout() {
+    const z = map.getZoom();
+    document.getElementById('zoom-readout').textContent = 'z ' + z.toFixed(1).replace(/\.0$/, '');
+  }
+  map.on('zoom', updateZoomReadout);
+
+  // controls
+  document.getElementById('zoom-in').onclick = () => map.zoomIn();
+  document.getElementById('zoom-out').onclick = () => map.zoomOut();
+  document.getElementById('btn-home').onclick = () => map.flyTo({ center: [0, 25], zoom: 1.2, speed: 0.9 });
+  document.getElementById('btn-cph').onclick = () => map.flyTo({ center: [12.56, 55.68], zoom: 11, speed: 1.1 });
+  document.getElementById('btn-sea').onclick = () => map.flyTo({ center: [-122.33, 47.61], zoom: 12, speed: 1.1 });
+  document.getElementById('btn-mlc').onclick = () => map.flyTo({ center: [2.92, 39.6], zoom: 9.5, speed: 1.1 });
+
+  // theme: swap basemap style, then re-add rides on style.load
+  onThemeChange = () => {
+    const newStyle = STYLES[root.getAttribute('data-theme') === 'light' ? 'light' : 'dark'];
+    map.setStyle(newStyle);
+    map.once('style.load', () => {
+      try { map.setProjection({ type: 'globe' }); } catch (e) {}
+      addRidesLayer();
+      bindMapInteractions();
+    });
+  };
+
+  // ---- REGIONS ----
+  const regionTargets = {
+    'Copenhagen': { center: [12.56, 55.68], zoom: 11 },
+    'Seattle': { center: [-122.33, 47.61], zoom: 12 },
+    'Mallorca': { center: [2.92, 39.6], zoom: 9.5 },
+    'Bay Area': { center: [-122.27, 37.78], zoom: 10 },
+    'London': { center: [-0.13, 51.51], zoom: 11 },
+    'New York': { center: [-74.0, 40.71], zoom: 11 },
+    'Washington DC': { center: [-77.04, 38.91], zoom: 11 },
+  };
+  // canonical region order (built from full dataset so the list stays stable across filter changes)
+  const REGION_ORDER = data.regions.map(r => r.name);
+
+  function renderRegions() {
+    const f = FILTERS.find(x => x.key === activeFilter);
+    const matching = ridesGeoJSON.features.filter(ft => f.match(ft));
+    const counts = {}, kms = {};
+    for (const ft of matching) {
+      const reg = ft.properties.region;
+      counts[reg] = (counts[reg] || 0) + 1;
+      kms[reg] = (kms[reg] || 0) + ft.properties.km;
+    }
+    const maxKm = Math.max(0, ...Object.values(kms));
+    const html = REGION_ORDER.map(name => {
+      const n = counts[name] || 0;
+      const km = kms[name] || 0;
+      const w = maxKm ? (km / maxKm * 100) : 0;
+      return `<div class="region${n === 0 ? ' empty' : ''}" data-name="${name}">
+        <div class="name">${name}</div>
+        <div class="stats"><span><b>${fmt(n)}</b> rides</span><span><b>${fmt(km, 0)}</b> km</span></div>
+        <div class="bar"><div class="fill" style="width:${w.toFixed(1)}%"></div></div>
+      </div>`;
+    }).join('');
+    const regionsEl = document.getElementById('regions');
+    regionsEl.innerHTML = html;
+    regionsEl.querySelectorAll('.region').forEach(el => {
+      el.addEventListener('click', () => {
+        if (el.classList.contains('empty')) return;
+        const t = regionTargets[el.dataset.name];
+        if (t) map.flyTo({ ...t, speed: 1.1 });
+      });
+    });
+  }
+  postFilterHook = renderRegions;
+  renderRegions();
+})();
+</script>
+</body>
+</html>
